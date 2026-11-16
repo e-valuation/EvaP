@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import BadRequest, SuspiciousOperation
 from django.db.models import OuterRef, Subquery, Sum
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.utils.translation import get_language, gettext_lazy
@@ -24,12 +24,20 @@ from evap.rewards.models import (
     RewardPointRedemptionEvent,
     SemesterActivation,
 )
-from evap.rewards.tools import grant_eligible_reward_points_for_semester, redeemed_points_of_user, reward_points_of_user
+from evap.rewards.tools import (
+    StatusPointsProgress,
+    grant_eligible_reward_points_for_semester,
+    redeemed_points_of_user,
+    reward_points_of_user,
+    user_rewards_stats,
+)
 
 
 @reward_user_required
-def index(request):
+def index(request: HttpRequest) -> HttpResponse:
     status = 200
+
+    assert isinstance(request.user, UserProfile)
 
     events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__gte=date.today()).order_by("date")
 
@@ -62,35 +70,30 @@ def index(request):
                 return redirect("rewards:index")
 
     total_points_available = reward_points_of_user(request.user)
-    reward_point_grantings = RewardPointGranting.objects.filter(user_profile=request.user)
     reward_point_redemptions = RewardPointRedemption.objects.filter(user_profile=request.user)
 
-    granted_point_actions = [
-        (granting.granting_time, _("Reward for") + " " + granting.semester.name, granting.value, "")
-        for granting in reward_point_grantings
+    redemption_point_actions: list[tuple[datetime, str, int]] = [
+        (redemption.redemption_time, redemption.event.name, redemption.value) for redemption in reward_point_redemptions
     ]
-    redemption_point_actions = [
-        (redemption.redemption_time, redemption.event.name, "", redemption.value)
-        for redemption in reward_point_redemptions
-    ]
+    redemption_point_actions = sorted(redemption_point_actions, key=lambda action: action[0], reverse=True)
 
-    reward_point_actions = sorted(
-        granted_point_actions + redemption_point_actions, key=lambda action: action[0], reverse=True
-    )
+    user_status_points_progress = StatusPointsProgress.make_for(request.user)
 
     template_data = {
-        "reward_point_actions": reward_point_actions,
+        "user_rewards_stats": user_rewards_stats(request.user),
+        "redemption_point_actions": redemption_point_actions,
         "total_points_available": total_points_available,
         "total_points_spent": sum(redemption.value for redemption in reward_point_redemptions),
         "events": events,
         "formset": formset,
         "forms": zip(formset, events, strict=True),
+        "status_points_progress": user_status_points_progress,
     }
     return render(request, "rewards_index.html", template_data, status=status)
 
 
 @manager_required
-def reward_point_redemption_events(request):
+def reward_point_redemption_events(request: HttpRequest) -> HttpResponse:
     upcoming_events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__gte=datetime.now()).order_by("date")
     past_events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__lt=datetime.now()).order_by("-date")
     total_points_granted = RewardPointGranting.objects.aggregate(Sum("value"))["value__sum"] or 0
@@ -126,7 +129,7 @@ class RewardPointRedemptionEventEditView(SuccessMessageMixin, UpdateView):
 
 @require_POST
 @manager_required
-def reward_point_redemption_event_delete(request):
+def reward_point_redemption_event_delete(request: HttpRequest) -> HttpResponse:
     event = get_object_from_dict_pk_entry_or_logged_40x(RewardPointRedemptionEvent, request.POST, "event_id")
 
     if not event.can_delete:
@@ -136,7 +139,7 @@ def reward_point_redemption_event_delete(request):
 
 
 @manager_required
-def reward_point_redemption_event_export(request, event_id):
+def reward_point_redemption_event_export(request: HttpRequest, event_id: int) -> HttpResponse:
     event = get_object_or_404(RewardPointRedemptionEvent, id=event_id)
 
     filename = _("RewardPoints") + f"-{event.date}-{event.name}-{get_language()}.xls"
@@ -148,7 +151,7 @@ def reward_point_redemption_event_export(request, event_id):
 
 
 @manager_required
-def reward_points_export(request):
+def reward_points_export(request: HttpRequest) -> HttpResponse:
     filename = _("RewardPoints") + f"-{get_language()}.csv"
     response = AttachmentResponse(filename, content_type="text/csv")
 
@@ -183,7 +186,7 @@ def reward_points_export(request):
 
 @require_POST
 @manager_required
-def semester_activation_edit(request, semester_id):
+def semester_activation_edit(request: HttpRequest, semester_id: int) -> HttpResponse:
     semester = get_object_or_404(Semester, id=semester_id)
     status = request.POST.get("activation_status")
     if status == "on":

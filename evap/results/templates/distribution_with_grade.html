@@ -2,13 +2,16 @@
 {% load evaluation_filters %}
 
 <div class="distribution-bar-container{% if question_result.warning %} participants-warning{% endif %}">
-    <div class="distribution-bar {{ question_result.choices.css_class }}"
-        {% if question_result.question.is_bipolar_likert_question %} style="left: {{ question_result.minus_balance_count|percentage_one_decimal:question_result.count_sum }}"{% endif %}
+    <div
+        class="distribution-bar {{ question_result.choices.css_class }}"
+        {% if question_result.question.is_bipolar_likert_question %}
+            style="left: {{ question_result.minus_balance_count|percentage_one_decimal:question_result.count_sum }}"
+        {% endif %}
     >
         {% with colors=question_result|to_colors %}
             {% for value, color in distribution|zip:colors %}
                 {% if value != 0 %}
-                    <div class="vote-bg-{{ color }}" style="width: {{ value|percentage_one_decimal:1 }};">&nbsp;</div>
+                    <div class="vote-bg-{{ color }}" style="width: {{ value|percentage_one_decimal:1 }}">&nbsp;</div>
                 {% endif %}
             {% endfor %}
         {% endwith %}
@@ -42,7 +45,10 @@
         <span class="right">{{ weight_info }}</span>
     {% endif %}
 </div>
-<div class="badge-grade ms-2{% if question_result.warning %} participants-warning{% endif %}" style="background-color: {{ average|gradecolor }}">
+<div
+    class="badge-grade ms-2{% if question_result.warning %} participants-warning{% endif %}"
+    style="background-color: {{ average|gradecolor }}"
+>
     {% if question_result.question.is_yes_no_question %}
         {{ question_result.approval_count|percentage:question_result.count_sum }}
     {% else %}

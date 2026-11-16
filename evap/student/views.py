@@ -4,12 +4,13 @@ from collections import OrderedDict
 from collections.abc import Iterable
 from dataclasses import dataclass
 from fractions import Fraction
+from typing import TYPE_CHECKING, cast
 
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.db import transaction
-from django.db.models import Exists, F, Max, OuterRef, Q, Sum
+from django.db.models import Exists, F, Max, OuterRef, Sum
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -28,15 +29,23 @@ from evap.evaluation.models import (
     TextAnswer,
     VoteTimestamp,
 )
-from evap.evaluation.tools import translate
 from evap.results.tools import (
     annotate_distributions_and_grades,
     get_evaluations_with_course_result_attributes,
     textanswers_visible_to,
 )
+from evap.rewards.tools import (
+    StatusPointsProgress,
+    UserSemesterRewardsStats,
+    can_reward_points_be_used_by,
+)
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.models import TextAnswerWarning
 from evap.student.tools import answer_field_id
+
+if TYPE_CHECKING:
+    from evap.evaluation.models import UserProfile
+
 
 SUCCESS_MAGIC_STRING = "vote submitted successfully"
 
@@ -44,46 +53,30 @@ SUCCESS_MAGIC_STRING = "vote submitted successfully"
 @dataclass
 class GlobalEvaluationProgress:
     @dataclass
-    class RewardProgress:
-        progress: Fraction  # progress towards this reward, relative to max reward, between 0 and 1
+    class StepProgress:
+        progress: Fraction  # progress towards this step, relative to max step, between 0 and 1
         vote_ratio: Fraction
         text: str
 
-    @dataclass
-    class Campaign:
-        title_de: str
-        title_en: str
-        title = translate(en="title_en", de="title_de")
-
-        info_title_de: str
-        info_title_en: str
-        info_title = translate(en="info_title_en", de="info_title_de")
-
-        info_text_de: str
-        info_text_en: str
-        info_text = translate(en="info_text_en", de="info_text_de")
-
     vote_count: int
     participation_count: int
-    max_reward_votes: int
+    max_step_votes: int
     bar_width_votes: int
     last_vote_datetime: datetime.datetime
-    rewards_with_progress: list[RewardProgress]
-    campaign: Campaign
+    steps_with_progress: list[StepProgress]
 
     @staticmethod
     def from_settings() -> "GlobalEvaluationProgress | None":
-        if not settings.GLOBAL_EVALUATION_PROGRESS_REWARDS:
+        if not settings.GLOBAL_EVALUATION_PROGRESS:
             return None
 
-        if not Semester.active_semester():
+        if not (active_semester := Semester.active_semester()):
             return None
 
         language = get_language()
 
         evaluations = (
-            Semester.active_semester()
-            .evaluations.exclude(state__lt=Evaluation.State.APPROVED)
+            active_semester.evaluations.exclude(state__lt=Evaluation.State.APPROVED)
             .exclude(is_rewarded=False)
             .exclude(id__in=settings.GLOBAL_EVALUATION_PROGRESS_EXCLUDED_EVALUATION_IDS)
             .exclude(course__type__id__in=settings.GLOBAL_EVALUATION_PROGRESS_EXCLUDED_COURSE_TYPE_IDS)
@@ -96,14 +89,14 @@ class GlobalEvaluationProgress:
             .values()
         )
 
-        max_reward_vote_ratio, __ = max(settings.GLOBAL_EVALUATION_PROGRESS_REWARDS)
-        max_reward_votes = math.ceil(max_reward_vote_ratio * participation_count)
+        max_step_vote_ratio, __ = max(settings.GLOBAL_EVALUATION_PROGRESS)
+        max_step_votes = math.ceil(max_step_vote_ratio * participation_count)
 
-        rewards_with_progress = [
-            GlobalEvaluationProgress.RewardProgress(
-                progress=vote_ratio / max_reward_vote_ratio, vote_ratio=vote_ratio, text=text[language]
+        steps_with_progress = [
+            GlobalEvaluationProgress.StepProgress(
+                progress=vote_ratio / max_step_vote_ratio, vote_ratio=vote_ratio, text=text[language]
             )
-            for vote_ratio, text in settings.GLOBAL_EVALUATION_PROGRESS_REWARDS
+            for vote_ratio, text in settings.GLOBAL_EVALUATION_PROGRESS
         ]
 
         last_vote_datetime = VoteTimestamp.objects.filter(evaluation__in=evaluations).aggregate(Max("timestamp"))[
@@ -113,28 +106,37 @@ class GlobalEvaluationProgress:
         return GlobalEvaluationProgress(
             vote_count=vote_count,
             participation_count=participation_count,
-            max_reward_votes=max_reward_votes,
-            bar_width_votes=min(vote_count, max_reward_votes),
+            max_step_votes=max_step_votes,
+            bar_width_votes=min(vote_count, max_step_votes),
             last_vote_datetime=last_vote_datetime,
-            rewards_with_progress=rewards_with_progress,
-            campaign=GlobalEvaluationProgress.Campaign(**settings.GLOBAL_EVALUATION_PROGRESS_CAMPAIGN),
+            steps_with_progress=steps_with_progress,
         )
 
 
 @participant_required
-def index(request):
+def index(request):  # pylint: disable=too-many-locals
     query = (
         Evaluation.objects.annotate(
-            participates_in=Exists(Evaluation.objects.filter(id=OuterRef("id"), participants=request.user))
+            participates_in=Exists(
+                Evaluation.participants.through.objects.filter(
+                    evaluation_id=OuterRef("pk"), userprofile_id=request.user.id
+                )
+            )
         )
-        .annotate(voted_for=Exists(Evaluation.objects.filter(id=OuterRef("id"), voters=request.user)))
-        .filter(~Q(state=Evaluation.State.NEW), course__evaluations__participants=request.user)
+        .annotate(
+            voted_for=Exists(
+                Evaluation.voters.through.objects.filter(evaluation_id=OuterRef("pk"), userprofile_id=request.user.id)
+            )
+        )
+        .filter(course__evaluations__participants=request.user)
         .exclude(state=Evaluation.State.NEW)
-        .prefetch_related(
+        .select_related(
             "course",
             "course__semester",
-            "course__grade_documents",
             "course__type",
+        )
+        .prefetch_related(
+            "course__grade_documents",
             "course__evaluations",
             "course__responsibles",
             "course__programs",
@@ -203,12 +205,29 @@ def index(request):
 
     unfinished_evaluations.sort(key=sorter)
 
+    status_points_progress = StatusPointsProgress.make_for(request.user)
+
+    active_semester = Semester.active_semester()
+    active_semester_rewards_stats = (
+        UserSemesterRewardsStats.make_for(request.user, active_semester) if active_semester else None
+    )
+
+    # always show 0% and 100% on progress bar
+    reward_points_steps = list(settings.REWARD_POINTS)
+    for value in [0, 1]:
+        if not any(step[0] == value for step in reward_points_steps):
+            reward_points_steps.append((value,))
+
     template_data = {
         "semester_list": semester_list,
         "can_download_grades": request.user.can_download_grades,
         "unfinished_evaluations": unfinished_evaluations,
         "evaluation_end_warning_period": settings.EVALUATION_END_WARNING_PERIOD,
+        "show_reward_card": can_reward_points_be_used_by(request.user),
         "global_evaluation_progress": GlobalEvaluationProgress.from_settings(),
+        "semester_rewards_stats": active_semester_rewards_stats,
+        "reward_points_steps": reward_points_steps,
+        "status_points_progress": status_points_progress,
     }
 
     return render(request, "student_index.html", template_data)
@@ -268,7 +287,7 @@ def get_vote_page_form_groups(
     return form_groups
 
 
-def render_vote_page(
+def render_vote_page(  # pylint: disable=too-many-locals
     request: HttpRequest,
     evaluation: Evaluation,
     *,
@@ -276,13 +295,20 @@ def render_vote_page(
     dropout: bool,
     for_rendering_in_modal: bool = False,
 ) -> HttpResponse:
-    language = request.GET.get("language", evaluation.main_language)
+    fallback_language = (
+        evaluation.main_language if evaluation.main_language != Evaluation.UNDECIDED_MAIN_LANGUAGE else "en"
+    )
+    language = request.GET.get("language", fallback_language)
+
     with translation.override(language):
         form_groups = get_vote_page_form_groups(request, evaluation, preview=preview, dropout=dropout)
 
     assert preview or not all(form.is_valid() for form_group in form_groups.values() for form in form_group)
 
-    evaluation_form_group = form_groups.pop(evaluation.general_contribution, default=[])
+    if evaluation.general_contribution is None:
+        evaluation_form_group = []
+    else:
+        evaluation_form_group = form_groups.pop(evaluation.general_contribution, default=[])
 
     contributor_form_groups = [
         (
@@ -345,7 +371,7 @@ def vote(request: HttpRequest, evaluation_id: int, dropout: bool = False) -> Htt
     if dropout and not evaluation.is_dropout_allowed:
         raise SuspiciousOperation("Dropping out is not allowed")
 
-    if not evaluation.can_be_voted_for_by(request.user):
+    if not evaluation.can_be_voted_for_by(cast("UserProfile", request.user)):
         raise PermissionDenied
 
     form_groups = get_vote_page_form_groups(request, evaluation, preview=False, dropout=dropout)
@@ -369,7 +395,7 @@ def vote(request: HttpRequest, evaluation_id: int, dropout: bool = False) -> Htt
                     if question.is_heading_question:
                         continue
 
-                    value = questionnaire_form.cleaned_data.get(answer_field_id(contribution, questionnaire, question))
+                    value = questionnaire_form.cleaned_data[answer_field_id(contribution, questionnaire, question)]
 
                     if question.is_text_question:
                         if value:
@@ -378,6 +404,7 @@ def vote(request: HttpRequest, evaluation_id: int, dropout: bool = False) -> Htt
                             )
                     else:
                         if value != NO_ANSWER:
+                            assert question.answer_class is RatingAnswerCounter
                             answer_counter, __ = question.answer_class.objects.get_or_create(
                                 contribution=contribution, assignment=assignment, answer=value
                             )
@@ -412,4 +439,4 @@ def vote(request: HttpRequest, evaluation_id: int, dropout: bool = False) -> Htt
     evaluation.evaluation_evaluated.send(sender=Evaluation, request=request, semester=evaluation.course.semester)
 
     messages.success(request, _("Your vote was recorded."))
-    return HttpResponse(SUCCESS_MAGIC_STRING)
+    return HttpResponse(SUCCESS_MAGIC_STRING, content_type="text/plain")

@@ -1,30 +1,47 @@
 import logging
 from datetime import date, timedelta
 
+from django import forms
 from django.conf import settings
 from django.contrib import auth, messages
 from django.core.exceptions import SuspiciousOperation
 from django.core.mail import EmailMessage
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.encoding import iri_to_uri
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.http import require_POST
-from django.views.generic import TemplateView
 from django.views.i18n import set_language
 
 from evap.evaluation.forms import LoginEmailForm, NewKeyForm, NotebookForm, ProfileForm
-from evap.evaluation.models import EmailTemplate, FaqSection, Semester, UserProfile
-from evap.evaluation.tools import HttpResponseNoContent, openid_login_is_active, password_login_is_active
+from evap.evaluation.models import (
+    EmailTemplate,
+    FaqSection,
+    Question,
+    QuestionAssignment,
+    Questionnaire,
+    QuestionType,
+    Semester,
+    UserProfile,
+)
+from evap.evaluation.tools import (
+    HttpResponseNoContent,
+    in_language,
+    openid_login_is_active,
+    password_login_is_active,
+)
 from evap.middleware import no_login_required
+from evap.student.forms import question_fields
+from evap.tools import assert_not_none
 
 logger = logging.getLogger(__name__)
 
 
-def redirect_user_to_start_page(user):  # noqa: PLR0911
+def redirect_user_to_start_page(user: UserProfile) -> HttpResponse:  # noqa: PLR0911
     active_semester = Semester.active_semester()
 
     if user.is_reviewer:
@@ -53,7 +70,7 @@ def redirect_user_to_start_page(user):  # noqa: PLR0911
 
 @no_login_required
 @sensitive_post_parameters("password")
-def index(request):
+def index(request: HttpRequest) -> HttpResponse:
     """Main entry page into EvaP providing all the login options available. The OpenID login is thought to be used for
     internal users. The login key mechanism is meant to be used to include external participants, e.g. visiting
     students or visiting contributors. A login with email and password is available if OpenID is deactivated.
@@ -61,22 +78,26 @@ def index(request):
 
     # parse the form data into the respective form
     submit_type = request.POST.get("submit_type", "no_submit")
-    new_key_form = NewKeyForm(request.POST if submit_type == "new_key" else None)
+    new_key_form = NewKeyForm(request.POST if submit_type == "new_key" else None, prefix="new-key")
 
     if submit_type == "login_email" and not password_login_is_active():
         raise SuspiciousOperation
 
-    login_email_form = LoginEmailForm(request, request.POST if submit_type == "login_email" else None)
+    login_email_form = LoginEmailForm(
+        request,
+        request.POST if submit_type == "login_email" else None,
+        prefix="login",
+    )
 
     # process form data
     if request.method == "POST":
         if new_key_form.is_valid():
             # user wants a new login key
-            profile = new_key_form.get_user()
+            profile = assert_not_none(new_key_form.get_user())
             profile.ensure_valid_login_key()
             profile.save()
 
-            EmailTemplate.send_login_url_to_user(new_key_form.get_user())
+            EmailTemplate.send_login_url_to_user(profile)
 
             messages.success(request, _("We sent you an email with a one-time login URL. Please check your inbox."))
             return redirect("evaluation:index")
@@ -106,6 +127,8 @@ def index(request):
         }
         return render(request, "index.html", template_data)
 
+    assert isinstance(request.user, UserProfile)
+
     # check for redirect variable
     redirect_to = request.GET.get("next", None)
     if redirect_to is not None and url_has_allowed_host_and_scheme(redirect_to, None):
@@ -116,7 +139,7 @@ def index(request):
 
 
 @no_login_required
-def login_key_authentication(request, key):
+def login_key_authentication(request: HttpRequest, key: int) -> HttpResponse:
     user = auth.authenticate(request, key=key)
 
     if user and not user.is_active:
@@ -132,7 +155,7 @@ def login_key_authentication(request, key):
             )
         return redirect("evaluation:index")
 
-    if user and user.login_key_valid_until >= date.today():
+    if user and assert_not_none(user.login_key_valid_until) >= date.today():
         if request.method != "POST":
             template_data = {"username": user.full_name}
             return render(request, "external_user_confirm_login.html", template_data)
@@ -156,18 +179,12 @@ def login_key_authentication(request, key):
 
 
 @no_login_required
-def faq(request):
+def faq(request: HttpRequest) -> HttpResponse:
     return render(request, "faq.html", {"sections": FaqSection.objects.all()})
 
 
-@no_login_required
-class LegalNoticeView(TemplateView):
-    template_name = "legal_notice.html"
-    extra_context = {"LEGAL_NOTICE_TEXT": settings.LEGAL_NOTICE_TEXT}
-
-
 @require_POST
-def contact(request):
+def contact(request: HttpRequest) -> HttpResponse:
     sent_anonymous = request.POST.get("anonymous") == "true"
     if sent_anonymous and not settings.ALLOW_ANONYMOUS_FEEDBACK_MESSAGES:
         raise SuspiciousOperation("Anonymous feedback messages are not allowed, however received one from user!")
@@ -177,6 +194,7 @@ def contact(request):
         sender = "anonymous user"
         subject = "[EvaP] Anonymous message"
     else:
+        assert isinstance(request.user, UserProfile)
         sender = request.user.email or f"User {request.user.id}"
         subject = f"[EvaP] Message from {sender}"
     if message:
@@ -199,8 +217,9 @@ def contact(request):
 
 @no_login_required
 @require_POST
-def set_lang(request):
+def set_lang(request: HttpRequest) -> HttpResponse:
     if request.user.is_authenticated:
+        assert isinstance(request.user, UserProfile)
         user = request.user
         user.language = request.POST.get("language", "en")
         user.save()
@@ -208,7 +227,7 @@ def set_lang(request):
     return set_language(request)
 
 
-def profile_edit(request):
+def profile_edit(request: HttpRequest) -> HttpResponse:
     user = request.user
     profile_form = ProfileForm(request.POST or None, request.FILES or None, instance=user)
 
@@ -218,6 +237,7 @@ def profile_edit(request):
             messages.success(request, _("Successfully updated your profile."))
             return redirect("evaluation:profile_edit")
 
+    assert isinstance(user, UserProfile)
     editor_context = {
         "delegate_of": user.represented_users.all(),
         "cc_users": user.cc_users.all(),
@@ -230,7 +250,7 @@ def profile_edit(request):
 
 
 @require_POST
-def set_notes(request):
+def set_notes(request: HttpRequest) -> HttpResponse:
     form = NotebookForm(request.POST, instance=request.user)
     if form.is_valid():
         form.save()
@@ -238,8 +258,9 @@ def set_notes(request):
     return HttpResponseBadRequest()
 
 
-def set_startpage(request):
+def set_startpage(request: HttpRequest) -> HttpResponse:
     user = request.user
+    assert isinstance(user, UserProfile)
     startpage = request.POST.get("page")
     if startpage not in UserProfile.StartPage.values:
         return HttpResponseBadRequest()
@@ -247,3 +268,48 @@ def set_startpage(request):
     user.save()
 
     return redirect("evaluation:index")
+
+
+class DemoQuestionnaireForm(forms.Form):
+    def __init__(self, *args, questionnaire: Questionnaire, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.questionnaire = questionnaire
+
+
+def questiontypes_demo(request: HttpRequest) -> HttpResponse:
+    questionnaire_name = gettext_lazy("Question types")
+    form = DemoQuestionnaireForm(
+        questionnaire=Questionnaire(
+            name_en=in_language(questionnaire_name, "en"),
+            name_de=in_language(questionnaire_name, "de"),
+        )
+    )
+
+    for group_index, (group_name, type_choices) in enumerate(Question.QUESTION_TYPES):
+        questions = [
+            Question(
+                type=question_type,
+                text_en=in_language(type_name, "en"),
+                text_de=in_language(type_name, "de"),
+            )
+            for question_type, type_name in type_choices
+            if question_type != QuestionType.HEADING
+        ]
+        if not questions:
+            continue
+
+        heading = Question(
+            type=QuestionType.HEADING,
+            text_en=in_language(group_name, "en"),
+            text_de=in_language(group_name, "de"),
+        )
+        heading_assignment = QuestionAssignment(question=heading, counts_for_grade=False)
+        form.fields.update(question_fields(heading_assignment, f"heading_{group_index}", f"heading_{group_index}_ta"))
+
+        for question in questions:
+            question.allows_additional_textanswers = question.is_rating_question
+            identifier = f"question_{question.type}"
+            assignment = QuestionAssignment(question=question, counts_for_grade=question.is_rating_question)
+            form.fields.update(question_fields(assignment, identifier, f"{identifier}_ta"))
+
+    return render(request, "questiontypes_demo.html", {"questionnaire_group": [form]})

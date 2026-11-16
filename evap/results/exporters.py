@@ -65,6 +65,7 @@ class ResultsExporter(ExcelExporter):
         ),
         "missing_average": xlwt.Style.default_style,
         "total_voters": xlwt.easyxf("alignment: horiz centre; borders: left medium, right medium"),
+        "total_participants": xlwt.easyxf("alignment: horiz centre; borders: left medium, right medium"),
         "evaluation_rate": xlwt.easyxf("alignment: horiz centre; borders: left medium, bottom medium, right medium"),
         "evaluation_weight": xlwt.easyxf("alignment: horiz centre; borders: left medium, right medium"),
         "program": xlwt.easyxf("alignment: wrap on; borders: left medium, right medium"),
@@ -263,10 +264,15 @@ class ResultsExporter(ExcelExporter):
         averages = (distribution_to_grade(calculate_average_distribution(e)) for e in annotated_evaluations)
         self.write_row(averages, lambda avg: self.grade_to_style(avg) if avg else "border_left_right")
 
-        self.write_cell(_("Total voters/Total participants"), "bold")
+        self.write_cell(_("Total voters"), "bold")
         self.write_cell("", "total_voters")
-        voter_ratios = (f"{e.num_voters}/{e.num_participants}" for e in annotated_evaluations)
-        self.write_row(voter_ratios, style="total_voters")
+        total_voters = (e.num_voters for e in annotated_evaluations)
+        self.write_row(total_voters, style="total_voters")
+
+        self.write_cell(_("Total participants"), "bold")
+        self.write_cell("", "total_participants")
+        total_participants = (e.num_participants for e in annotated_evaluations)
+        self.write_row(total_participants, style="total_participants")
 
         self.write_cell(_("Evaluation rate"), "bold")
         self.write_cell("", "evaluation_rate")
@@ -383,7 +389,9 @@ class ResultsExporter(ExcelExporter):
 
         self.write_empty_row_with_styles(["border_left_right"] * len(evaluations_with_results))
 
-        for question in self.filter_text_and_heading_questions(questionnaire.questions.all()):
+        for question in self.filter_text_and_heading_questions(
+            assignment.question for assignment in questionnaire.question_assignments.all()
+        ):
             self.write_cell(question.text, "italic" if question.is_heading_question else "default")
 
             grade_average, approval_average = self._get_average_of_average_grade_and_approval(
@@ -416,7 +424,7 @@ class ResultsExporter(ExcelExporter):
         include_unpublished: bool = False,
         contributor: UserProfile | None = None,
         verbose_heading: bool = True,
-    ):
+    ) -> None:
         # We want to throw early here, since workbook.save() will throw an IndexError otherwise.
         assert len(selection_list) > 0
 
@@ -478,7 +486,14 @@ class TextAnswerExporter(ExcelExporter):
 
     default_sheet_name = _("Text Answers")
 
-    def __init__(self, evaluation_name, semester_name, responsibles, results, contributor_name):
+    def __init__(
+        self,
+        evaluation_name: str,
+        semester_name: str,
+        responsibles: str,
+        results: "TextAnswerExporter.InputData",
+        contributor_name: str | None,
+    ) -> None:
         super().__init__()
         self.evaluation_name = evaluation_name
         self.semester_name = semester_name
@@ -487,7 +502,7 @@ class TextAnswerExporter(ExcelExporter):
         self.results = results
         self.contributor_name = contributor_name
 
-    def export_impl(self):  # pylint: disable=arguments-differ
+    def export_impl(self) -> None:  # pylint: disable=arguments-differ
         self.cur_sheet.col(0).width = 10000
         self.cur_sheet.col(1).width = 40000
 
@@ -507,5 +522,5 @@ class TextAnswerExporter(ExcelExporter):
                 question_title = (f"{contributor_name}: " if contributor_name else "") + question.text
                 first_col = chain([question_title], repeat(""))
 
-                for answer, first_cell, line_style in zip(answers, first_col, line_styles, strict=False):
+                for answer, first_cell, line_style in zip(answers, first_col, line_styles, strict=False):  # pylint: disable=looping-through-iterator
                     self.write_row([first_cell, answer], style=line_style)

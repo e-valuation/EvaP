@@ -18,10 +18,12 @@ from evap.evaluation.models import (
     QuestionType,
     UserProfile,
 )
-from evap.evaluation.tests.tools import LiveServerTest
+from evap.evaluation.tests.tools import LiveServerTest, get_open_modals
 
 
 class StudentVoteLiveTest(LiveServerTest):
+    SKIP_CONTRIBUTOR_SELECTORS = (By.CSS_SELECTOR, "confirmation-modal.mark-no-answer-modal")
+
     def setUp(self) -> None:
         super().setUp()
         voting_user1 = baker.make(UserProfile, email="voting_user1@institution.example.com")
@@ -41,10 +43,18 @@ class StudentVoteLiveTest(LiveServerTest):
         contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
 
         baker.make(
-            QuestionAssignment, questionnaire=contributor_questionnaire, order=0, question__type=QuestionType.HEADING
+            QuestionAssignment,
+            questionnaire=contributor_questionnaire,
+            order=0,
+            question__type=QuestionType.HEADING,
+            counts_for_grade=False,
         )
         baker.make(
-            QuestionAssignment, questionnaire=contributor_questionnaire, order=1, question__type=QuestionType.TEXT
+            QuestionAssignment,
+            questionnaire=contributor_questionnaire,
+            order=1,
+            question__type=QuestionType.TEXT,
+            counts_for_grade=False,
         )
         baker.make(
             QuestionAssignment,
@@ -54,10 +64,18 @@ class StudentVoteLiveTest(LiveServerTest):
         )
 
         baker.make(
-            QuestionAssignment, questionnaire=top_general_questionnaire, order=0, question__type=QuestionType.HEADING
+            QuestionAssignment,
+            questionnaire=top_general_questionnaire,
+            order=0,
+            question__type=QuestionType.HEADING,
+            counts_for_grade=False,
         )
         baker.make(
-            QuestionAssignment, questionnaire=top_general_questionnaire, order=1, question__type=QuestionType.TEXT
+            QuestionAssignment,
+            questionnaire=top_general_questionnaire,
+            order=1,
+            question__type=QuestionType.TEXT,
+            counts_for_grade=False,
         )
         baker.make(
             QuestionAssignment,
@@ -70,10 +88,18 @@ class StudentVoteLiveTest(LiveServerTest):
         )
 
         baker.make(
-            QuestionAssignment, questionnaire=bottom_general_questionnaire, order=0, question__type=QuestionType.HEADING
+            QuestionAssignment,
+            questionnaire=bottom_general_questionnaire,
+            order=0,
+            question__type=QuestionType.HEADING,
+            counts_for_grade=False,
         )
         baker.make(
-            QuestionAssignment, questionnaire=bottom_general_questionnaire, order=1, question__type=QuestionType.TEXT
+            QuestionAssignment,
+            questionnaire=bottom_general_questionnaire,
+            order=1,
+            question__type=QuestionType.TEXT,
+            counts_for_grade=False,
         )
         baker.make(
             QuestionAssignment,
@@ -98,7 +124,9 @@ class StudentVoteLiveTest(LiveServerTest):
             evaluation=evaluation,
         )
 
-        evaluation.general_contribution.questionnaires.set([top_general_questionnaire, bottom_general_questionnaire])
+        evaluation.ensure_general_contribution().questionnaires.set(
+            [top_general_questionnaire, bottom_general_questionnaire]
+        )
         self.url = self.reverse("student:vote", args=[evaluation.pk])
         self.login(voting_user1)
 
@@ -130,12 +158,19 @@ class StudentVoteLiveTest(LiveServerTest):
     def test_resolving_submit_errors_clears_warning(self) -> None:
         self.selenium.get(self.url)
         with self.wait_until_page_reloads():
-            self.wait.until(presence_of_element_located((By.ID, "vote-submit-btn"))).click()
+            self.selenium.find_element(By.ID, "vote-submit-btn").click()
+
+        # wait for all javascript to fully execute, so our click handlers are registered
+        self.wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
 
         row = self.selenium.find_element(By.CSS_SELECTOR, "#student-vote-form .row:has(.btn-check)")
+        error_marked = row.find_elements(By.CSS_SELECTOR, ".choice-error")
+        self.assertEqual(len(error_marked), 7)
+
         checkbox = row.find_element(By.CSS_SELECTOR, "input[type=radio][value='2'] + label.choice-error")
         checkbox.click()
-        self.assertEqual(row.find_elements(By.CSS_SELECTOR, ".choice-error"), [])
+
+        self.wait.until(lambda __: row.find_elements(By.CSS_SELECTOR, ".choice-error") == [])
 
     @override_settings(SMALL_COURSE_SIZE=2)
     def test_skip_contributor(self) -> None:
@@ -163,10 +198,6 @@ class StudentVoteLiveTest(LiveServerTest):
         id_ = button.get_attribute("data-mark-no-answers-for")
         self.assertEqual(len(self.selenium.find_elements(By.CSS_SELECTOR, f"#vote-area-{id_} .choice-error")), 0)
 
-    def get_open_modals(self):
-        modals = self.selenium.find_elements(By.CSS_SELECTOR, "confirmation-modal.mark-no-answer-modal")
-        return [modal for modal in modals if len(modal.shadow_root.find_elements(By.CSS_SELECTOR, "dialog:open")) == 1]
-
     def test_skip_contributor_modal_not_shown(self) -> None:
         self.selenium.get(self.url)
 
@@ -179,12 +210,13 @@ class StudentVoteLiveTest(LiveServerTest):
         open_textanswer = vote_area.find_element(By.CSS_SELECTOR, "button.btn-textanswer")
         open_textanswer.click()
 
-        collapsible = vote_area.find_element(By.CSS_SELECTOR, "div.collapse.show")
+        collapsible = self.wait.until(lambda __: vote_area.find_element(By.CSS_SELECTOR, "div.collapse.show"))
 
         radio_button.click()
         button.click()
-        self.assertEqual(len(self.get_open_modals()), 0)
-        self.assertFalse(collapsible.is_displayed())
+
+        self.wait.until(lambda __: not collapsible.is_displayed())
+        self.assertEqual(get_open_modals(self.selenium, *self.SKIP_CONTRIBUTOR_SELECTORS), [])
 
     def test_skip_contributor_modal_shown(self) -> None:
         self.selenium.get(self.url)
@@ -200,15 +232,17 @@ class StudentVoteLiveTest(LiveServerTest):
 
         textarea.send_keys("a")
         button.click()
-        modals = self.get_open_modals()
+        modals = get_open_modals(self.selenium, *self.SKIP_CONTRIBUTOR_SELECTORS)
         self.assertEqual(len(modals), 1)
         ActionChains(self.selenium).send_keys(Keys.ESCAPE).perform()
         self.assertEqual(textarea.get_attribute("value"), "a")
 
         button.click()
-        modal = self.get_open_modals()[0]
+
+        (modal,) = get_open_modals(self.selenium, *self.SKIP_CONTRIBUTOR_SELECTORS)
+
         confirm_button = modal.shadow_root.find_element(By.CSS_SELECTOR, "button[data-event-type='confirm']")
         confirm_button.click()
         self.wait.until(invisibility_of_element(modal))
-        self.assertEqual(len(self.get_open_modals()), 0)
-        self.assertEqual(textarea.get_attribute("value"), "")
+        self.wait.until(lambda __: textarea.get_attribute("value") == "")
+        self.wait.until(lambda driver: len(get_open_modals(driver, *self.SKIP_CONTRIBUTOR_SELECTORS)) == 0)

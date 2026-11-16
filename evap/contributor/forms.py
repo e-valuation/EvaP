@@ -57,13 +57,13 @@ class EvaluationForm(forms.ModelForm):
             Questionnaire.objects.general_questionnaires()
             .filter(Q(visibility=Questionnaire.Visibility.EDITORS) | Q(contributions__evaluation=self.instance))
             .distinct()
-            .prefetch_related("questions")
+            .prefetch_related("question_assignments", "question_assignments__question")
         )
         self.fields["dropout_questionnaires"].queryset = (
             Questionnaire.objects.dropout_questionnaires()
             .filter(Q(visibility=Questionnaire.Visibility.EDITORS) | Q(contributions__evaluation=self.instance))
             .distinct()
-            .prefetch_related("questions")
+            .prefetch_related("question_assignments", "question_assignments__question")
         )
 
         self.fields["vote_start_datetime"].localize = True
@@ -86,9 +86,9 @@ class EvaluationForm(forms.ModelForm):
             for field in self._meta.fields:
                 self.fields[field].disabled = True
 
-        if self.instance.exam_type is not None and self.instance.cms_id is not None:
+        if self.instance.cms_evaluation_links.filter(is_active=True).exists():
             self.fields["participants"].disabled = True
-            self.cms_disclaimer = _("Participants are regularly updated with exam registrations from the CMS.")
+            self.cms_disclaimer = _("Participants are regularly updated with registrations from the CMS.")
 
     def clean(self):
         super().clean()
@@ -100,7 +100,9 @@ class EvaluationForm(forms.ModelForm):
             self.add_error("vote_end_date", _("The first day of evaluation must be before the last one."))
 
         # Ensure locked questionnaires cannot be deselected and only unlocked ones can be added
-        selected_questionnaires = self.instance.general_contribution.questionnaires.filter(is_locked=True).distinct()
+        selected_questionnaires = Questionnaire.objects.filter(
+            is_locked=True, contributions__contributor=None, contributions__evaluation=self.instance
+        ).distinct()
         selected_questionnaires |= self.cleaned_data.get("general_questionnaires").filter(is_locked=False)
         selected_questionnaires |= self.cleaned_data.get("dropout_questionnaires").filter(is_locked=False)
 
@@ -133,7 +135,7 @@ class EvaluationForm(forms.ModelForm):
         selected_questionnaires = self.cleaned_data.get("general_questionnaires") | self.cleaned_data.get(
             "dropout_questionnaires"
         )
-        evaluation.general_contribution.questionnaires.set(selected_questionnaires)
+        evaluation.ensure_general_contribution().questionnaires.set(selected_questionnaires)
         return evaluation
 
 
@@ -147,7 +149,7 @@ class EditorContributionForm(ContributionForm):
             Questionnaire.objects.contributor_questionnaires()
             .filter(Q(visibility=Questionnaire.Visibility.EDITORS) | Q(contributions__evaluation=self.evaluation))
             .distinct()
-            .prefetch_related("questions")
+            .prefetch_related("question_assignments", "question_assignments__question")
         )
         self.fields["contributor"].queryset = UserProfile.objects.filter(
             (Q(is_active=True) & Q(is_proxy_user=False)) | Q(pk=existing_contributor_pk)

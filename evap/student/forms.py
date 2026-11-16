@@ -1,6 +1,6 @@
 from django import forms
 
-from evap.evaluation.models import CHOICES, Question
+from evap.evaluation.models import CHOICES, Contribution, Question, QuestionAssignment, Questionnaire
 from evap.student.tools import answer_field_id
 
 
@@ -8,46 +8,74 @@ class HeadingField(forms.Field):
     """Pseudo field used to store and display headings inside a QuestionnaireVotingForm.
     Does not handle any kind of input."""
 
-    def __init__(self, label):
+    def __init__(self, label) -> None:
         super().__init__(label=label, required=False)
 
     @classmethod
-    def from_question(cls, question: Question):
+    def from_question(cls, question: Question) -> "HeadingField":
         return cls(label=question.text)
 
 
 class TextAnswerField(forms.CharField):
-    def __init__(self, *args, related_answer_field_id=None, **kwargs):
+    def __init__(self, *args, related_answer_field_id: str | None = None, **kwargs) -> None:
         self.related_answer_field_id = related_answer_field_id
         kwargs["required"] = False
         kwargs["widget"] = forms.Textarea(attrs={"related_answer_field_id": self.related_answer_field_id})
         super().__init__(*args, **kwargs)
 
     @classmethod
-    def from_question(cls, question: Question):
+    def from_question(cls, question: Question) -> "TextAnswerField":
         return cls(label=question.text)
 
 
 class RatingAnswerField(forms.TypedChoiceField):
-    def __init__(self, widget_choices, *args, allows_textanswer=False, **kwargs):
+    def __init__(self, widget_choices, *args, allows_textanswer: bool, counts_for_grade: bool, **kwargs) -> None:
         self.allows_textanswer = allows_textanswer
+        self.counts_for_grade = counts_for_grade
         kwargs["coerce"] = int
         kwargs["widget"] = forms.RadioSelect(
             attrs={
                 "allows_textanswer": self.allows_textanswer,
+                "counts_for_grade": self.counts_for_grade,
                 "choices": widget_choices,
             }
         )
         super().__init__(*args, **kwargs)
 
     @classmethod
-    def from_question(cls, question: Question):
+    def from_assignment(cls, assignment: QuestionAssignment) -> "RatingAnswerField":
+        question = assignment.question
         return cls(
             widget_choices=CHOICES[question.type],
             choices=zip(CHOICES[question.type].values, CHOICES[question.type].names, strict=True),
             label=question.text,
             allows_textanswer=question.allows_additional_textanswers,
+            counts_for_grade=assignment.counts_for_grade,
         )
+
+
+def question_fields(
+    assignment: QuestionAssignment, identifier: str, additional_textanswer_identifier: str
+) -> dict[str, forms.Field]:
+    """Creates the form fields for an assigned question, including the field for an additional text answer if allowed.
+    The additional text answer field must directly follow the rating field, as the template relies on this order."""
+
+    question = assignment.question
+    field: TextAnswerField | RatingAnswerField | HeadingField
+    if question.is_text_question:
+        field = TextAnswerField.from_question(question)
+    elif question.is_rating_question:
+        field = RatingAnswerField.from_assignment(assignment)
+    else:
+        assert question.is_heading_question
+        field = HeadingField.from_question(question)
+
+    fields: dict[str, forms.Field] = {identifier: field}
+    if question.is_rating_question and question.allows_additional_textanswers:
+        fields[additional_textanswer_identifier] = TextAnswerField(
+            label=question.text, related_answer_field_id=identifier
+        )
+    return fields
 
 
 class QuestionnaireVotingForm(forms.Form):
@@ -55,25 +83,16 @@ class QuestionnaireVotingForm(forms.Form):
 
     See http://jacobian.org/writing/dynamic-form-generation/"""
 
-    def __init__(self, *args, contribution, questionnaire, **kwargs):
+    def __init__(self, *args, contribution: Contribution, questionnaire: Questionnaire, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.questionnaire = questionnaire
 
-        for question in self.questionnaire.questions.all():
-            if question.is_text_question:
-                field = TextAnswerField.from_question(question)
-            elif question.is_rating_question:
-                field = RatingAnswerField.from_question(question)
-            else:
-                assert question.is_heading_question
-                field = HeadingField.from_question(question)
-
-            identifier = answer_field_id(contribution, questionnaire, question)
-            self.fields[identifier] = field
-
-            if question.is_rating_question and question.allows_additional_textanswers:
-                textanswer_field = TextAnswerField(label=question.text, related_answer_field_id=identifier)
-                textanswer_identifier = answer_field_id(
-                    contribution, questionnaire, question, additional_textanswer=True
+        for assignment in self.questionnaire.question_assignments.select_related("question").all():
+            question = assignment.question
+            self.fields.update(
+                question_fields(
+                    assignment,
+                    answer_field_id(contribution, questionnaire, question),
+                    answer_field_id(contribution, questionnaire, question, additional_textanswer=True),
                 )
-                self.fields[textanswer_identifier] = textanswer_field
+            )

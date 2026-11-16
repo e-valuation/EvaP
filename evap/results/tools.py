@@ -4,26 +4,32 @@ from collections.abc import Iterable
 from copy import copy
 from enum import Enum
 from math import ceil, modf
-from typing import TypeGuard, cast
+from typing import TYPE_CHECKING, TypeGuard, cast
 
 from django.conf import settings
 from django.core.cache import caches
-from django.db.models import Exists, OuterRef, Sum, prefetch_related_objects
+from django.db.models import Exists, OuterRef, QuerySet, Sum, prefetch_related_objects
 
 from evap.evaluation.models import (
     CHOICES,
     NO_ANSWER,
+    BipolarChoices,
+    Choices,
     Contribution,
     Course,
     Evaluation,
     Question,
+    QuestionAssignment,
     Questionnaire,
     RatingAnswerCounter,
     TextAnswer,
     UserProfile,
 )
 from evap.evaluation.tools import discard_cached_related_objects
-from evap.tools import unordered_groupby
+from evap.tools import assert_not_none, unordered_groupby
+
+if TYPE_CHECKING:
+    from typing import Any
 
 STATES_WITH_RESULTS_CACHING = {Evaluation.State.EVALUATED, Evaluation.State.REVIEWED, Evaluation.State.PUBLISHED}
 STATES_WITH_RESULT_TEMPLATE_CACHING = {Evaluation.State.PUBLISHED}
@@ -59,26 +65,36 @@ class TextAnswerVisibility:
         self.visible_by_delegation_count = visible_by_delegation_count
 
 
-def create_rating_result(question: Question, answer_counters, additional_text_result=None):
+def create_rating_result(
+    assignment: QuestionAssignment,
+    answer_counters: Iterable[RatingAnswerCounter] | None,
+    additional_text_result: "TextResult | None" = None,
+) -> "RatingResult":
     if answer_counters is None:
-        return RatingResult(question, additional_text_result)
+        return RatingResult(assignment, additional_text_result)
     if any(counter.count != 0 for counter in answer_counters):
-        return AnsweredRatingResult(question, answer_counters, additional_text_result)
-    return PublishedRatingResult(question, answer_counters, additional_text_result)
+        return AnsweredRatingResult(assignment, answer_counters, additional_text_result)
+    return PublishedRatingResult(assignment, answer_counters, additional_text_result)
 
 
 class RatingResult:
     @classmethod
-    def is_published(cls, rating_result) -> TypeGuard["PublishedRatingResult"]:
+    def is_published(
+        cls, rating_result: "RatingResult | TextResult | HeadingResult"
+    ) -> TypeGuard["PublishedRatingResult"]:
         return isinstance(rating_result, PublishedRatingResult)
 
     @classmethod
-    def has_answers(cls, rating_result) -> TypeGuard["AnsweredRatingResult"]:
+    def has_answers(
+        cls, rating_result: "RatingResult | TextResult | HeadingResult"
+    ) -> TypeGuard["AnsweredRatingResult"]:
         return isinstance(rating_result, AnsweredRatingResult)
 
-    def __init__(self, question: Question, additional_text_result=None) -> None:
+    def __init__(self, assignment: QuestionAssignment, additional_text_result: "TextResult | None" = None) -> None:
+        question = assignment.question
         assert question.is_rating_question
         self.question = discard_cached_related_objects(copy(question))
+        self.counts_for_grade = assignment.counts_for_grade
         self.additional_text_result = additional_text_result
         self.colors = tuple(
             color for _, color, value in self.choices.as_name_color_value_tuples() if value != NO_ANSWER
@@ -86,13 +102,18 @@ class RatingResult:
         self.warning = False
 
     @property
-    def choices(self):
+    def choices(self) -> Choices | BipolarChoices:
         return CHOICES[self.question.type]
 
 
 class PublishedRatingResult(RatingResult):
-    def __init__(self, question: Question, answer_counters, additional_text_result=None) -> None:
-        super().__init__(question, additional_text_result)
+    def __init__(
+        self,
+        assignment: QuestionAssignment,
+        answer_counters: Iterable[RatingAnswerCounter],
+        additional_text_result: "TextResult | None" = None,
+    ) -> None:
+        super().__init__(assignment, additional_text_result)
         counts = OrderedDict(
             (value, [0, name, color, value]) for (name, color, value) in self.choices.as_name_color_value_tuples()
         )
@@ -100,7 +121,7 @@ class PublishedRatingResult(RatingResult):
         for answer_counter in answer_counters:
             assert counts[answer_counter.answer][0] == 0
             counts[answer_counter.answer][0] = answer_counter.count
-        self.counts = tuple(count for count, _, _, _ in counts.values())
+        self.counts = tuple(cast("int", count) for count, _, _, _ in counts.values())
         self.zipped_choices = tuple(counts.values())
 
     @property
@@ -198,7 +219,7 @@ def get_results_cache_key(evaluation: Evaluation) -> str:
     return f"evap.staff.results.tools.get_results-{evaluation.id:d}"
 
 
-def cache_results(evaluation, *, refetch_related_objects=True):
+def cache_results(evaluation: Evaluation, *, refetch_related_objects: bool = True) -> None:
     assert evaluation.state in STATES_WITH_RESULTS_CACHING
     cache_key = get_results_cache_key(evaluation)
     caches["results"].set(cache_key, _get_results_impl(evaluation, refetch_related_objects=refetch_related_objects))
@@ -265,7 +286,9 @@ def _get_results_impl(evaluation: Evaluation, *, refetch_related_objects: bool =
                         answer_counters = racs_per_contribution_assignment.get((contribution.id, assignment.id), [])
                     else:
                         answer_counters = None
-                    results.append(create_rating_result(question, answer_counters, additional_text_result=text_result))
+                    results.append(
+                        create_rating_result(assignment, answer_counters, additional_text_result=text_result)
+                    )
                 elif question.is_text_question and evaluation.can_publish_text_results:
                     assert text_result is not None
                     results.append(text_result)
@@ -277,13 +300,16 @@ def _get_results_impl(evaluation: Evaluation, *, refetch_related_objects: bool =
     return EvaluationResult(contributor_contribution_results)
 
 
-def annotate_distributions_and_grades(evaluations):
+def annotate_distributions_and_grades(evaluations: Iterable) -> None:
     for evaluation in evaluations:
         evaluation.distribution = calculate_average_distribution(evaluation)
         evaluation.avg_grade = distribution_to_grade(evaluation.distribution)
 
 
-def normalized_distribution(distribution):
+type Distribution = tuple[float, ...] | None
+
+
+def normalized_distribution(distribution: Iterable[float] | None) -> Distribution:
     """Returns a normalized distribution with the individual values adding up to 1.
     Can also be used to convert counts to a distribution."""
     if distribution is None:
@@ -296,15 +322,15 @@ def normalized_distribution(distribution):
     return tuple((value / distribution_sum) for value in distribution)
 
 
-def unipolarized_distribution(result):
-    summed_distribution = [0, 0, 0, 0, 0]
+def unipolarized_distribution(result: PublishedRatingResult) -> Distribution:
+    summed_distribution: list[float] = [0, 0, 0, 0, 0]
 
     if not result.counts:
         return None
 
     for counts, grade in zip(result.counts, result.choices.grades, strict=True):
-        grade_fraction, grade = modf(grade)
-        grade = int(grade)
+        grade_fraction, grade_whole = modf(grade)
+        grade = int(grade_whole)
         summed_distribution[grade - 1] += (1 - grade_fraction) * counts
         if grade < 5:
             summed_distribution[grade] += grade_fraction * counts
@@ -312,11 +338,11 @@ def unipolarized_distribution(result):
     return normalized_distribution(summed_distribution)
 
 
-def avg_distribution(weighted_distributions):
+def avg_distribution(weighted_distributions: Iterable[tuple[Distribution, float]]) -> Distribution:
     if all(distribution is None for distribution, __ in weighted_distributions):
         return None
 
-    summed_distribution = [0, 0, 0, 0, 0]
+    summed_distribution: list[float] = [0, 0, 0, 0, 0]
     for distribution, weight in weighted_distributions:
         if distribution:
             for index, value in enumerate(distribution):
@@ -324,27 +350,40 @@ def avg_distribution(weighted_distributions):
     return normalized_distribution(summed_distribution)
 
 
-def average_grade_questions_distribution(results):
+def average_grade_questions_distribution(
+    results: Iterable[RatingResult | HeadingResult | TextResult],
+) -> Distribution:
+    weighted_distributions = []
+    for result in results:
+        if isinstance(result, RatingResult) and result.question.is_grade_question and result.counts_for_grade:
+            # Unpublished RatingResults are only created when can_publish_rating_results is False. Reaching this
+            # function implies can_publish_average_grade, which is defined to imply can_publish_rating_results.
+            assert isinstance(result, PublishedRatingResult)
+            weighted_distributions.append((unipolarized_distribution(result), result.count_sum))
+
+    return avg_distribution(weighted_distributions)
+
+
+def average_non_grade_rating_questions_distribution(
+    results: Iterable[RatingResult | HeadingResult | TextResult],
+) -> Distribution:
     return avg_distribution(
         [
-            (unipolarized_distribution(result), result.count_sum)
+            (
+                unipolarized_distribution(cast("PublishedRatingResult", result)),
+                cast("PublishedRatingResult", result).count_sum,
+            )
             for result in results
-            if result.question.is_grade_question
+            if isinstance(result, RatingResult)
+            and result.question.is_non_grade_rating_question
+            and result.counts_for_grade
         ]
     )
 
 
-def average_non_grade_rating_questions_distribution(results):
-    return avg_distribution(
-        [
-            (unipolarized_distribution(result), result.count_sum)
-            for result in results
-            if result.question.is_non_grade_rating_question
-        ]
-    )
-
-
-def calculate_average_course_distribution(course, check_for_unpublished_evaluations=True):
+def calculate_average_course_distribution(
+    course: Course, check_for_unpublished_evaluations: bool = True
+) -> Distribution:
     if check_for_unpublished_evaluations and course.evaluations.exclude(state=Evaluation.State.PUBLISHED).exists():
         return None
 
@@ -359,7 +398,7 @@ def calculate_average_course_distribution(course, check_for_unpublished_evaluati
     )
 
 
-def get_evaluations_with_course_result_attributes(evaluations):
+def get_evaluations_with_course_result_attributes[T: (QuerySet[Evaluation], list[Evaluation])](evaluations: T) -> T:
     courses_with_unpublished_evaluations = set(
         Course.objects.filter(evaluations__in=evaluations)
         .filter(Exists(Evaluation.objects.filter(course=OuterRef("pk")).exclude(state=Evaluation.State.PUBLISHED)))
@@ -375,20 +414,21 @@ def get_evaluations_with_course_result_attributes(evaluations):
     evaluation_weight_sum_per_course_id = {entry[0]: entry[1] for entry in course_id_evaluation_weight_sum_pairs}
 
     for evaluation in evaluations:
-        if evaluation.course.id in courses_with_unpublished_evaluations:
-            evaluation.course.not_all_evaluations_are_published = True
-            evaluation.course.distribution = None
+        course = cast("Any", evaluation.course)
+        if course.id in courses_with_unpublished_evaluations:
+            course.not_all_evaluations_are_published = True
+            course.distribution = None
         else:
-            evaluation.course.distribution = calculate_average_course_distribution(evaluation.course, False)
+            course.distribution = calculate_average_course_distribution(evaluation.course, False)
 
-        evaluation.course.evaluation_count = evaluation.course.evaluations.count()
-        evaluation.course.avg_grade = distribution_to_grade(evaluation.course.distribution)
-        evaluation.course.evaluation_weight_sum = evaluation_weight_sum_per_course_id[evaluation.course.id]
+        course.evaluation_count = evaluation.course.evaluations.count()
+        course.avg_grade = distribution_to_grade(course.distribution)
+        course.evaluation_weight_sum = evaluation_weight_sum_per_course_id[evaluation.course.id]
 
     return evaluations
 
 
-def calculate_average_distribution(evaluation):
+def calculate_average_distribution(evaluation: Evaluation) -> Distribution:
     assert evaluation.state >= Evaluation.State.IN_EVALUATION
 
     if not evaluation.can_staff_see_average_grade or not evaluation.can_publish_average_grade:
@@ -398,8 +438,12 @@ def calculate_average_distribution(evaluation):
     grouped_results = defaultdict(list)
     for contribution_result in get_results(evaluation).contribution_results:
         for questionnaire_result in contribution_result.questionnaire_results:
-            if not questionnaire_result.questionnaire.is_dropout:  # dropout questionnaires are not counted
-                grouped_results[contribution_result.contributor].extend(questionnaire_result.question_results)
+            if questionnaire_result.questionnaire.is_dropout:
+                assert not any(
+                    isinstance(result, RatingResult) and result.counts_for_grade
+                    for result in questionnaire_result.question_results
+                ), f"Dropout questionnaire {questionnaire_result.questionnaire.id} has results that count"
+            grouped_results[contribution_result.contributor].extend(questionnaire_result.question_results)
 
     evaluation_results = grouped_results.pop(None, [])
 
@@ -418,8 +462,14 @@ def calculate_average_distribution(evaluation):
                         ),
                     ]
                 ),
+                # The weight of this contributors grade is supposed to represent the number of students the
+                # contributor interacted with, which we derive from the max answer count, independently of counts_for_grade.
                 max(
-                    (result.count_sum for result in contributor_results if result.question.is_rating_question),
+                    (
+                        cast("PublishedRatingResult", result).count_sum
+                        for result in contributor_results
+                        if result.question.is_rating_question
+                    ),
                     default=0,
                 ),
             )
@@ -439,19 +489,22 @@ def calculate_average_distribution(evaluation):
     )
 
 
-def distribution_to_grade(distribution):
+def distribution_to_grade(distribution: Distribution) -> float | None:
     if distribution is None:
         return None
     return sum(answer * percentage for answer, percentage in enumerate(distribution, start=1))
 
 
-def color_mix(color1, color2, fraction):
+type Color = tuple[int, int, int]
+
+
+def color_mix(color1: Color, color2: Color, fraction: float) -> Color:
     return cast(
         "tuple[int, int, int]", tuple(int(round(color1[i] * (1 - fraction) + color2[i] * fraction)) for i in range(3))
     )
 
 
-def get_grade_color(grade):
+def get_grade_color(grade: float) -> Color:
     # Can happen if no one leaves any grades. Return white because it least likely causes problems.
     if not grade:
         return (255, 255, 255)
@@ -461,16 +514,21 @@ def get_grade_color(grade):
     return color_mix(GRADE_COLORS[next_lower], GRADE_COLORS[next_higher], grade - next_lower)
 
 
-def textanswers_visible_to(contribution):
+def textanswers_visible_to(contribution: Contribution | None) -> TextAnswerVisibility:
+    if contribution is None:
+        return TextAnswerVisibility(visible_by_contribution=[], visible_by_delegation_count=0)
+
+    contributors: set[UserProfile]
     if contribution.is_general:
         contributors = {
             other_contribution.contributor
             for other_contribution in contribution.evaluation.contributions.all()
             if other_contribution.textanswer_visibility == Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS
+            and other_contribution.contributor is not None
         }
         contributors.update(contribution.evaluation.course.responsibles.all())
     else:
-        contributors = {contribution.contributor}
+        contributors = {assert_not_none(contribution.contributor)}
 
     non_proxy_contributors = [contributor for contributor in contributors if not contributor.is_proxy_user]
     delegates = {delegate for contributor in non_proxy_contributors for delegate in contributor.delegates.all()}

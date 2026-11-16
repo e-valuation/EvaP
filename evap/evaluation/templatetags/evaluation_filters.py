@@ -48,7 +48,7 @@ StateValues = namedtuple("StateValues", ("order", "icon", "filter", "description
 APPROVAL_STATES = {
     Evaluation.State.NEW: StateValues(
         0,
-        "fas fa-circle icon-blue",
+        "fas fa-circle icon-primary",
         Evaluation.State.NEW,
         _("In preparation"),
     ),
@@ -60,12 +60,12 @@ APPROVAL_STATES = {
     ),
     Evaluation.State.EDITOR_APPROVED: StateValues(
         1,
-        "far fa-square-check icon-blue",
+        "far fa-square-check icon-primary",
         Evaluation.State.EDITOR_APPROVED,
         _("Approved by editor, awaiting manager review"),
     ),
     Evaluation.State.APPROVED: StateValues(
-        3, "far fa-square-check icon-green", Evaluation.State.APPROVED, _("Approved by manager")
+        3, "far fa-square-check icon-success", Evaluation.State.APPROVED, _("Approved by manager")
     ),
 }
 
@@ -230,3 +230,8 @@ def add_class(widget, class_name_to_add: str):
     new_class = class_name_to_add + " " + widget["attrs"]["class"] if "class" in widget["attrs"] else class_name_to_add
     widget["attrs"].update({"class": new_class})
     return widget
+
+
+@register.filter
+def min_value(a, b):
+    return min(a, b)

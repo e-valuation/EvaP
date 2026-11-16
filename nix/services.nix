@@ -21,7 +21,7 @@
         listen_addresses = ""; # disable listening via TCP
         socketDir = "data";
         createDatabase = false;
-        initialScript.before = ''
+        initialScript.before = pkgs.writeText "init.sql" ''
           DROP USER IF EXISTS evap;
           DROP DATABASE IF EXISTS evap;
           CREATE USER evap PASSWORD 'evap' CREATEDB;
@@ -75,6 +75,49 @@
           "pg1".condition = "process_healthy";
           "r1".condition = "process_healthy";
         };
+      };
+    };
+  };
+
+  devenv = {
+    settings.processes =
+      let
+        make-dev-command = name: inner-command: {
+          command = pkgs.writeShellApplication {
+            inherit name;
+            runtimeInputs = [ venv pkgs.nodejs ];
+            text = ''
+              set -ex
+              ${inner-command}
+            '';
+          };
+          is_tty = true;
+          depends_on = {
+            "init-django".condition = "process_completed_successfully";
+            "npm-ci".condition = "process_completed_successfully";
+          };
+        };
+      in
+      {
+        ts = make-dev-command "ts" "./manage.py ts compile --fresh --watch";
+        scss = make-dev-command "scss" "./manage.py scss --watch";
+        evap = make-dev-command "evap" "./manage.py run";
+      };
+    };
+
+  vnu.settings.processes = {
+    vnu-server = {
+      command = pkgs.writeShellScriptBin "vnu-server" ''
+        # See https://validator.github.io/validator/docs/vnu-server.1.html
+        exec ${lib.getExe pkgs.jre_headless} -cp ${pkgs.validator-nu}/share/java/vnu.jar nu.validator.servlet.Main 8001
+      '';
+      readiness_probe = {
+        http_get = {
+          host = "localhost";
+          port = 8001;
+          path = "/about.html";
+        };
+        initial_delay_seconds = 5;
       };
     };
   };

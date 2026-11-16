@@ -22,8 +22,8 @@ from evap.evaluation.models import (
 )
 from evap.evaluation.tools import (
     AttachmentResponse,
+    get_bool_parameter_from_url_or_session,
     get_object_from_dict_pk_entry_or_logged_40x,
-    get_parameter_from_url_or_session,
     sort_formset,
 )
 from evap.results.exporters import ResultsExporter
@@ -35,7 +35,7 @@ from evap.student.views import render_vote_page
 @responsible_or_contributor_or_delegate_required
 def index(request):
     user = request.user
-    show_delegated = get_parameter_from_url_or_session(request, "show_delegated", True)
+    show_delegated = get_bool_parameter_from_url_or_session(request, "show_delegated", True)
 
     represented_proxy_users = user.represented_users.filter(is_proxy_user=True)
     contributor_visible_states = [
@@ -58,9 +58,10 @@ def index(request):
     )
 
     own_evaluations = (
-        Evaluation.objects.filter(course__in=own_courses)
+        Evaluation.annotate_with_participant_and_voter_counts(Evaluation.objects.filter(course__in=own_courses))
         .annotate(contributes_to=Exists(Evaluation.objects.filter(id=OuterRef("id"), contributions__contributor=user)))
-        .prefetch_related("course", "course__evaluations", "course__programs", "course__type", "course__semester")
+        .select_related("course", "course__type", "course__semester")
+        .prefetch_related("course__evaluations", "course__programs")
     )
     own_evaluations = [evaluation for evaluation in own_evaluations if evaluation.can_be_seen_by(user)]
 
@@ -77,9 +78,14 @@ def index(request):
                 )
             )
         )
-        delegated_evaluations = Evaluation.objects.filter(course__in=delegated_courses).prefetch_related(
-            "course", "course__evaluations", "course__programs", "course__type", "course__semester"
+        delegated_evaluations = (
+            Evaluation.annotate_with_participant_and_voter_counts(
+                Evaluation.objects.filter(course__in=delegated_courses)
+            )
+            .select_related("course", "course__type", "course__semester")
+            .prefetch_related("course__evaluations", "course__programs", "course__responsibles")
         )
+
         delegated_evaluations = [evaluation for evaluation in delegated_evaluations if evaluation.can_be_seen_by(user)]
         for evaluation in delegated_evaluations:
             evaluation.delegated_evaluation = True

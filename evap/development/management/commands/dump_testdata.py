@@ -26,6 +26,7 @@ class Command(BaseCommand):
             "rewards",
             "student",
             "grades",
+            "cms",
             "--exclude=evaluation.LogEntry",
             indent=2,
             output=outfile_name,

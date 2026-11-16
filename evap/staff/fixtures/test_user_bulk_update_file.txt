@@ -2,3 +2,4 @@ testuser1,testuser1@institution.example.com
 testusernewinternal,testusernewinternal@institution.example.com
 testusernewexternal,testusernewexternal@example.com
 testupdate,testupdate@internal.example.com
+testuser3,testuser3.tobeignored@institution.example.com

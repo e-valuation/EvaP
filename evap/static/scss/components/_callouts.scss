@@ -24,29 +24,29 @@
 }
 
 .callout-warning {
-    background-color: $evap-light-yellow;
-    border-color: $evap-yellow;
-    color: shade-color($evap-yellow, 60%);
+    background-color: $warning-accent;
+    border-color: $warning;
+    color: shade-color($warning, 60%);
 }
 
 .callout-danger {
-    background-color: $evap-light-red;
-    border-color: $evap-red;
-    color: shade-color($evap-red, 60%);
+    background-color: $danger-accent;
+    border-color: $danger;
+    color: shade-color($danger, 60%);
 }
 
 .callout-info {
-    background-color: $evap-light-blue;
-    border-color: $evap-dark-blue;
-    color: shade-color($evap-dark-blue, 60%);
+    background-color: $info;
+    border-color: $info-accent;
+    color: shade-color($info-accent, 60%);
 
     .callout-header {
-        color: $evap-dark-blue;
+        color: $info-accent;
     }
 
     &.closed:hover,
     &.closed:active {
-        background-color: shade-color($evap-light-blue, 20%);
+        background-color: shade-color($info, 20%);
     }
 }
 
@@ -92,6 +92,37 @@
 
         .callout-content {
             transition: max-width 1s ease, padding-top 1s ease 1s, max-height 1s ease 1s;
+        }
+    }
+}
+
+@include color-mode(dark) {
+    .callout-info {
+        background-color: shade-color($info-accent, 50%);
+        border-color: $info-accent;
+        color: $light-gray;
+        .callout-header {
+            color: $info;
+        }
+        &.closed:hover,
+        &.closed:active {
+            background-color: shade-color($info-accent, 20%);
+        }
+    }
+    .callout-warning {
+        background-color: shade-color($warning, 50%);
+        border-color: $warning;
+        color: $warning-accent;
+        .callout-header {
+            color: $warning-accent;
+        }
+    }
+    .callout-danger {
+        background-color: shade-color($danger, 50%);
+        border-color: $danger;
+        color: $danger-accent;
+        .callout-header {
+            color: $danger-accent;
         }
     }
 }

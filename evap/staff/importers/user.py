@@ -7,6 +7,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Q
 from django.utils.html import escape, format_html
+from django.utils.safestring import SafeString
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
@@ -38,7 +39,7 @@ class UserData:
     email: str
 
     @staticmethod
-    def bulk_update_fields():
+    def bulk_update_fields() -> list[str]:
         """Fields passed to bulk_update when updating existing users with new UserData"""
         return ["first_name_given", "last_name", "title", "email", "is_active"]
 
@@ -49,7 +50,7 @@ class UserData:
         object.__setattr__(self, "title", title.strip())
         object.__setattr__(self, "email", clean_email(email))
 
-    def apply_to_and_make_active(self, user_profile: UserProfile):
+    def apply_to_and_make_active(self, user_profile: UserProfile) -> None:
         """Intended to update existing UserProfile entries from the database. email is not touched"""
         user_profile.first_name_given = self.first_name
         user_profile.last_name = self.last_name
@@ -109,7 +110,7 @@ class UserInputRow(InputRow):
 class UserDataEmptyFieldsChecker(Checker):
     """Assert email, first name and last name are not empty"""
 
-    def check_userdata(self, user_data: UserData, location: ExcelFileLocation):
+    def check_userdata(self, user_data: UserData, location: ExcelFileLocation) -> None:
         if user_data.email == "":
             self.importer_log.add_error(
                 _("{location}: Email address is missing.").format(location=location),
@@ -139,7 +140,7 @@ class UserDataMismatchChecker(Checker):
 
         self.in_file_mismatch_tracker = FirstLocationAndCountTracker()
 
-    def check_userdata(self, user_data: UserData, location: ExcelFileLocation):
+    def check_userdata(self, user_data: UserData, location: ExcelFileLocation) -> None:
         if user_data.email == "":
             # UserDataEmptyFieldsChecker will give an error for these, no need to spam additional errors
             return
@@ -197,7 +198,7 @@ class UserDataMismatchChecker(Checker):
             if existing_db_users:
                 self._add_user_name_collision_warning(user_data, existing_db_users)
 
-    def _add_user_data_mismatch_warning(self, user: UserProfile, user_data: UserData):
+    def _add_user_data_mismatch_warning(self, user: UserProfile, user_data: UserData) -> None:
         if self.test_run:
             msg = escape(_("The existing user would be overwritten with the following data:"))
         else:
@@ -211,7 +212,7 @@ class UserDataMismatchChecker(Checker):
 
         self.importer_log.add_warning(msg, category=ImporterLogEntry.Category.NAME)
 
-    def _add_user_inactive_warning(self, user: UserProfile):
+    def _add_user_inactive_warning(self, user: UserProfile) -> None:
         user_string = self._create_user_string(user)
         if self.test_run:
             msg = format_html(
@@ -226,7 +227,9 @@ class UserDataMismatchChecker(Checker):
 
         self.importer_log.add_warning(msg, category=ImporterLogEntry.Category.INACTIVE)
 
-    def _add_user_name_collision_warning(self, user_data: UserData, users_with_same_names: Iterable[UserProfile]):
+    def _add_user_name_collision_warning(
+        self, user_data: UserData, users_with_same_names: Iterable[UserProfile]
+    ) -> None:
         msg = escape(_("A user in the import file has the same first and last name as an existing user:"))
         for user in users_with_same_names:
             msg += format_html("<br /> - {} ({})", self._create_user_string(user), _("existing"))
@@ -235,7 +238,7 @@ class UserDataMismatchChecker(Checker):
         self.importer_log.add_warning(msg, category=ImporterLogEntry.Category.DUPL)
 
     @staticmethod
-    def _create_user_string(user: UserProfile | UserData):
+    def _create_user_string(user: UserProfile | UserData) -> SafeString:
         if isinstance(user, UserProfile):
             return format_html(
                 "{} {} {}, {} [{}]",
@@ -258,7 +261,7 @@ class UserDataValidationChecker(Checker):
         # Only give one error per unique user_data.
         self.already_checked: set[UserData] = set()
 
-    def check_userdata(self, user_data: UserData, _location: ExcelFileLocation):
+    def check_userdata(self, user_data: UserData, _location: ExcelFileLocation) -> None:
         if user_data.email == "":
             # Should trigger another checker. We cannot meaningfully give an error message.
             return
@@ -285,7 +288,7 @@ class DuplicateUserDataChecker(Checker):
 
         self.tracker = FirstLocationAndCountTracker()
 
-    def check_userdata(self, user_data: UserData, location: ExcelFileLocation):
+    def check_userdata(self, user_data: UserData, location: ExcelFileLocation) -> None:
         if user_data not in self.first_location_by_user_data:
             self.first_location_by_user_data[user_data] = location
             return
@@ -307,10 +310,10 @@ class DuplicateUserDataChecker(Checker):
 class UserDataAdapter(RowCheckerMixin):
     """Adapter to use Checkers for UserData with UserParsedRow"""
 
-    def __init__(self, user_data_checker):
+    def __init__(self, user_data_checker) -> None:
         self.user_data_checker = user_data_checker
 
-    def check_row(self, row: UserParsedRow):
+    def check_row(self, row: UserParsedRow) -> None:
         self.user_data_checker.check_userdata(row.user_data, row.location)
 
     def finalize(self) -> None:
@@ -390,7 +393,7 @@ def get_user_profile_objects(users: Iterable[UserData]) -> tuple[list[UserProfil
 def update_existing_and_create_new_user_profiles(
     existing_user_profiles: Iterable[UserProfile],
     new_user_profiles: Iterable[UserProfile],
-):
+) -> None:
     for user_profile in existing_user_profiles:
         user_profile.save()
 

@@ -1,9 +1,18 @@
 {% extends 'staff_evaluation_base.html' %}
 
+{% load staff_templatetags %}
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item"><a href="{% url 'staff:evaluation_textanswers' evaluation.id %}#{{ textanswer.id }}">{% translate 'Text answers' %}</a></li>
-    <li class="breadcrumb-item">{{ textanswer.id }}</li>
+
+    {% with fragment_id=textanswer.id|stringformat:"s" %}
+        {% breadcrumb_item_url 'staff:evaluation_textanswers' evaluation.id fragment="textanswer-"|add:fragment_id %}
+            {% translate 'Text answers' %}
+        {% endbreadcrumb_item_url %}
+    {% endwith %}
+
+    {% breadcrumb_item %}
+        {{ textanswer.id }}
+    {% endbreadcrumb_item %}
 {% endblock %}
 
 {% block content %}
@@ -18,7 +27,9 @@
         </div>
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">
-                <button id="textanswer-edit-submit-button" type="submit" class="btn btn-primary">{% translate 'Save text answer' %}</button>
+                <button id="textanswer-edit-submit-button" type="submit" class="btn btn-primary">
+                    {% translate 'Save text answer' %}
+                </button>
             </div>
         </div>
     </form>

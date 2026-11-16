@@ -40,6 +40,7 @@ from evap.evaluation.models import (
     UserProfile,
     VoteTimestamp,
 )
+from evap.evaluation.models_logging import LogEntry
 from evap.evaluation.tests.tools import (
     FuzzyInt,
     TestCase,
@@ -380,8 +381,8 @@ class TestUserMergeSelectionView(WebTestStaffMode):
         expected_url = reverse("staff:user_merge", args=[suggested_main_user.pk, suggested_merge_candidate.pk])
         unexpected_url = reverse("staff:user_merge", args=[suggested_merge_candidate.pk, suggested_main_user.pk])
 
-        self.assertContains(page, f'<a href="{expected_url}"')
-        self.assertNotContains(page, f'<a href="{unexpected_url}"')
+        self.assertContains(page, f'href="{expected_url}"')
+        self.assertNotContains(page, f'href="{unexpected_url}"')
 
 
 class TestUserMergeView(WebTestStaffModeWith200Check):
@@ -488,6 +489,7 @@ class TestUserBulkUpdateView(WebTestStaffMode):
 
     @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.example.com", "internal.example.com"])
     @override_settings(PARTICIPATION_DELETION_AFTER_INACTIVE_TIME=datetime.timedelta(6 * 30))
+    @override_settings(IGNORE_USERS={"testuser3.tobeignored@institution.example.com"})
     @patch("evap.staff.tools.remove_user_from_represented_and_ccing_users")
     def test_handles_users(self, mock_remove: MagicMock) -> None:
         mock_remove.return_value = ["This text is supposed to be visible on the website."]
@@ -517,6 +519,9 @@ class TestUserBulkUpdateView(WebTestStaffMode):
             contributions=[baker.make(Contribution, evaluation=evaluation)],
         )
         testuser1.cc_users.set([contributor2])
+        # users referenced by log entries must not be deleted, e.g. former managers who edited evaluations
+        former_manager = baker.make(UserProfile, email="former.manager@institution.example.com")
+        baker.make(LogEntry, user=former_manager)
 
         expected_users = set(UserProfile.objects.exclude(email="testuser2@institution.example.com"))
 
@@ -526,15 +531,24 @@ class TestUserBulkUpdateView(WebTestStaffMode):
         response = form.submit(name="operation", value="test")
 
         self.assertIn(
-            "1 will be updated, 1 will be deleted and 2 will be marked inactive. 1 new users will be created.", response
+            "1 will be updated, 1 will be deleted and 3 will be marked inactive. 1 new users will be created.", response
         )
         self.assertIn("1 participation of responsible would be removed due to inactivity.", response)
 
         self.assertIn("testupdate@institution.example.com &gt; testupdate@internal.example.com", response)
+        self.assertIn("Users to be ignored are:<br />testuser3.tobeignored@institution.example.com", response)
         self.assertIn(mock_remove.return_value[0], response)
-        self.assertEqual(mock_remove.call_count, 3)
+        self.assertEqual(mock_remove.call_count, 4)
         calls = [[call[0][0].email, call[0][2]] for call in mock_remove.call_args_list]
-        self.assertEqual(calls, [[testuser2.email, True], [contributor2.email, True], [responsible.email, True]])
+        self.assertEqual(
+            calls,
+            [
+                [testuser2.email, True],
+                [contributor2.email, True],
+                [former_manager.email, True],
+                [responsible.email, True],
+            ],
+        )
         mock_remove.reset_mock()
 
         form = response.forms["user-bulk-update-form"]
@@ -551,6 +565,8 @@ class TestUserBulkUpdateView(WebTestStaffMode):
         expected_users.add(UserProfile.objects.get(email="testusernewinternal@institution.example.com"))
         # testusernewexternal is an external user and should not be created
         self.assertFalse(UserProfile.objects.filter(email="testusernewexternal@example.com").exists())
+        # testuser3.tobeignored is in IGNORE_USERS and should not be created
+        self.assertFalse(UserProfile.objects.filter(email="testuser3.tobeignored@institution.example.com").exists())
         # testupdate should have been renamed
         self.assertFalse(UserProfile.objects.filter(email="testupdate@institution.example.com").exists())
         self.assertTrue(UserProfile.objects.filter(email="testupdate@internal.example.com").exists())
@@ -559,14 +575,25 @@ class TestUserBulkUpdateView(WebTestStaffMode):
         self.assertTrue(UserProfile.objects.get(email="contributor1@institution.example.com").is_active)
         self.assertFalse(UserProfile.objects.get(email="contributor2@institution.example.com").is_active)
         self.assertFalse(UserProfile.objects.get(email="responsible@institution.example.com").is_active)
-        self.assertQuerySetEqual(UserProfile.objects.exclude(is_active=True), [contributor2, responsible])
+        self.assertFalse(UserProfile.objects.get(email="former.manager@institution.example.com").is_active)
+        self.assertQuerySetEqual(
+            UserProfile.objects.exclude(is_active=True), [contributor2, former_manager, responsible]
+        )
 
         self.assertQuerySetEqual(UserProfile.objects.all(), expected_users, ordered=False)
 
         self.assertIn(mock_remove.return_value[0], response)
-        self.assertEqual(mock_remove.call_count, 3)
+        self.assertEqual(mock_remove.call_count, 4)
         calls = [[call[0][0].email, call[0][2]] for call in mock_remove.call_args_list]
-        self.assertEqual(calls, [[testuser2.email, False], [contributor2.email, False], [responsible.email, False]])
+        self.assertEqual(
+            calls,
+            [
+                [testuser2.email, False],
+                [contributor2.email, False],
+                [former_manager.email, False],
+                [responsible.email, False],
+            ],
+        )
 
     @override_settings(DEBUG=False)
     def test_wrong_files_dont_crash(self) -> None:
@@ -596,6 +623,7 @@ class TestUserExportView(WebTestStaffMode):
         baker.make(
             UserProfile,
             _quantity=5,
+            _bulk_create=True,
             _fill_optional=["first_name_given", "last_name", "email"],
             title=iter(("", "Some", "Custom", "Titles", "")),
         )
@@ -744,24 +772,6 @@ class TestSemesterView(WebTestStaffMode):
             course=baker.make(Course, name_de="B", name_en="A", semester=cls.semester),
         )
 
-    def test_view_list_sorting(self):
-        self.manager.language = "de"
-        self.manager.save()
-        page = self.app.get(self.url, user=self.manager).body.decode("utf-8")
-        position_evaluation1 = page.find("Evaluation 1")
-        position_evaluation2 = page.find("Evaluation 2")
-        self.assertLess(position_evaluation1, position_evaluation2)
-        self.app.reset()  # language is only loaded on login, so we're forcing a re-login here
-
-        # Re-enter staff mode, since the session was just reset
-        with run_in_staff_mode(self):
-            self.manager.language = "en"
-            self.manager.save()
-            page = self.app.get(self.url, user=self.manager).body.decode("utf-8")
-            position_evaluation1 = page.find("Evaluation 1")
-            position_evaluation2 = page.find("Evaluation 2")
-            self.assertGreater(position_evaluation1, position_evaluation2)
-
     def test_access_to_semester_with_archived_results(self):
         reviewer = baker.make(
             UserProfile,
@@ -799,7 +809,11 @@ class TestSemesterView(WebTestStaffMode):
             can_publish_text_results=True,
             course__semester=self.semester,
         )
-        baker.make(TextAnswer, contribution=evaluation.general_contribution)
+        baker.make(
+            TextAnswer,
+            contribution=evaluation.general_contribution,
+            assignment__counts_for_grade=False,
+        )
 
         textanswer_review_state_mock.return_value = Evaluation.TextAnswerReviewState.NO_TEXTANSWERS
         page = self.app.get(f"/staff/semester/{evaluation.course.semester.id}", user=self.manager)
@@ -898,11 +912,16 @@ class TestSemesterDeleteView(DeleteViewTestMixin, WebTestStaffMode):
     def test_success_with_data(self):
         evaluation = baker.make(Evaluation, course__semester=self.instance, state=Evaluation.State.PUBLISHED)
         responsible_contribution = baker.make(Contribution, evaluation=evaluation, contributor=baker.make(UserProfile))
-        baker.make(RatingAnswerCounter, contribution=responsible_contribution)
+        baker.make(
+            RatingAnswerCounter,
+            contribution=responsible_contribution,
+            assignment__question__type=QuestionType.POSITIVE_LIKERT,
+        )
         baker.make(
             TextAnswer,
             contribution=evaluation.general_contribution,
             review_decision=TextAnswer.ReviewDecision.PUBLIC,
+            assignment__counts_for_grade=False,
         )
 
         self.instance.archive()
@@ -952,18 +971,19 @@ class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
 
         cls.responsible = baker.make(UserProfile)
 
-        cls.questionnaires = baker.make(Questionnaire, type=Questionnaire.Type.TOP, _quantity=4)
+        cls.questionnaires = baker.make(Questionnaire, type=Questionnaire.Type.TOP, _quantity=4, _bulk_create=True)
         cls.questionnaire_contributor, cls.questionnaire_responsible = baker.make(
-            Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, _quantity=2
+            Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, _quantity=2, _bulk_create=True
         )
-        cls.course_types = baker.make(CourseType, _quantity=3)
-        cls.exam_types = baker.make(ExamType, _quantity=3)
+        cls.course_types = baker.make(CourseType, _quantity=3, _bulk_create=True)
+        cls.exam_types = baker.make(ExamType, _quantity=3, _bulk_create=True)
         cls.evaluations = baker.make(
             Evaluation,
             course__semester=semester,
             course__responsibles=[cls.responsible],
             course__type=iter(cls.course_types),
             _quantity=3,
+            _bulk_create=True,
         )
         cls.exam_evaluations = [
             baker.make(
@@ -982,11 +1002,19 @@ class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
             role=Contribution.Role.EDITOR,
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
             _quantity=3,
+            _bulk_create=True,
         )
 
     def test_questionnaire_assignment(self):
+        archived_questionnaire = baker.make(Questionnaire, visibility=Questionnaire.Visibility.ARCHIVED)
+        hidden_questionnaire = baker.make(Questionnaire, visibility=Questionnaire.Visibility.HIDDEN)
+
         page = self.app.get(self.url, user=self.manager, status=200)
         form = page.forms["questionnaire-assign-form"]
+
+        self.assertNotIn(archived_questionnaire.name, page)
+        self.assertNotIn(hidden_questionnaire.name, page)
+
         form[f"general-{self.course_types[0].id}"] = [self.questionnaires[0].pk, self.questionnaires[1].pk]
         form[f"general-{self.course_types[1].id}"] = [self.questionnaires[1].pk]
         form[f"contributor-{self.course_types[0].id}"] = [self.questionnaire_responsible.pk]
@@ -1082,6 +1110,22 @@ class TestSemesterPreparationReminderView(WebTestStaffModeWith200Check):
         self.assertEqual(kwargs["body_params"], {"user": self.user, "evaluations": [self.evaluation]})
         self.assertEqual(kwargs["use_cc"], True)
 
+    def test_remind_all_internal_only(self) -> None:
+        self.user.email = "responsible@institution.example.com"
+        self.user.save()
+
+        external_responsible = baker.make(UserProfile, email="external@external.example.com")
+        baker.make(
+            Evaluation,
+            course=baker.make(Course, semester=self.semester, responsibles=[external_responsible]),
+            state=Evaluation.State.PREPARED,
+        )
+
+        self.app.post(self.url, params={"internal_only": "true"}, user=self.manager, status=200)
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, [self.user.email])
+
     def test_invalid_mode(self) -> None:
         self.app.get(self.url, params={"mode": "invalid"}, user=self.manager, status=400)
 
@@ -1090,13 +1134,18 @@ class TestGradeReminderView(WebTestStaffMode):
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
-        cls.responsible = baker.make(UserProfile, first_name_given="Bastius", last_name="Quid")
+        cls.responsible1 = baker.make(UserProfile, first_name_given="Bastius", last_name="Quid")
+        cls.responsible2 = baker.make(UserProfile, first_name_given="Bastius", last_name="Klum")
         cls.semester = baker.make(Semester)
         cls.url = reverse("staff:semester_grade_reminder", args=[cls.semester.pk])
 
-        course_args = {"responsibles": [cls.responsible], "gets_no_grade_documents": False, "semester": cls.semester}
-        cls.course1 = baker.make(Course, name_en="A-Course1", name_de="Z-Course1", **course_args)
-        cls.course2 = baker.make(Course, name_en="Z-Course2", name_de="A-Course2", **course_args)
+        course_args = {"gets_no_grade_documents": False, "semester": cls.semester}
+        cls.course1 = baker.make(
+            Course, name_en="A-Course1", name_de="Z-Course1", responsibles=[cls.responsible1], **course_args
+        )
+        cls.course2 = baker.make(
+            Course, name_en="Z-Course2", name_de="A-Course2", responsibles=[cls.responsible2], **course_args
+        )
 
         baker.make(
             Evaluation,
@@ -1105,6 +1154,7 @@ class TestGradeReminderView(WebTestStaffMode):
             wait_for_grade_upload_before_publishing=True,
             _fill_optional=["name_de", "name_en"],
             _quantity=2,
+            _bulk_create=True,
         )
         cls.course2_evaluation = baker.make(
             Evaluation,
@@ -1136,8 +1186,8 @@ class TestGradeReminderView(WebTestStaffMode):
         body = page.body.decode()
         self.assertEqual(body.count("Z-Course2"), 1)
 
-        # courses should be ordered
-        self.assertLess(body.index("A-Course1"), body.index("Z-Course2"))
+        # responsibles should be ordered
+        self.assertLess(body.index("Z-Course2"), body.index("A-Course1"))
 
         self.manager.language = "de"
         self.manager.save()
@@ -1443,19 +1493,29 @@ class TestSemesterRawDataExportView(WebTestStaffModeWith200Check):
         self.assertEqual(response.content, expected_content.encode("utf-8"))
 
 
+@override_settings(
+    REWARD_POINTS=[
+        (1 / 3, 1),
+        (2 / 3, 2),
+        (3 / 3, 3),
+    ],
+    STATUS_POINTS_EXCLUDED_SEMESTERS=[2],
+)
 class TestSemesterParticipationDataExportView(WebTestStaffMode):
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
-        student_user = baker.make(UserProfile, email="student@example.com")
+        student_user = baker.make(UserProfile, email="student@institution.example.com")
         student_user2 = baker.make(UserProfile, email="student2@example.com")
 
-        semester = baker.make(Semester)
-        cls.url = f"/staff/semester/{semester.pk}/participation_export"
+        semester1 = baker.make(Semester, id=1)
+        semester2 = baker.make(Semester, id=2)
+        semester3 = baker.make(Semester, id=3)
+        cls.url = reverse("staff:semester_participation_export", args=[semester1.pk])
 
         baker.make(
             Evaluation,
-            course__semester=semester,
+            course__semester=semester1,
             participants=[student_user],
             voters=[student_user],
             _fill_optional=["name_de", "name_en"],
@@ -1463,21 +1523,23 @@ class TestSemesterParticipationDataExportView(WebTestStaffMode):
         )
         baker.make(
             Evaluation,
-            course__semester=semester,
+            course__semester=semester1,
             participants=[student_user, student_user2],
             _fill_optional=["name_de", "name_en"],
             is_rewarded=False,
         )
-        baker.make(RewardPointGranting, semester=semester, user_profile=student_user, value=23)
-        baker.make(RewardPointGranting, semester=semester, user_profile=student_user, value=42)
+        baker.make(RewardPointGranting, semester=semester1, user_profile=student_user, value=23)
+        baker.make(RewardPointGranting, semester=semester1, user_profile=student_user, value=42)
+        baker.make(RewardPointGranting, semester=semester2, user_profile=student_user, value=5)
+        baker.make(RewardPointGranting, semester=semester3, user_profile=student_user, value=3)
 
     def test_view_downloads_csv_file(self):
         response = self.app.get(self.url, user=self.manager)
         expected_content = (
             "Email;Can use reward points;#Required evaluations voted for;#Required evaluations;#Optional evaluations voted for;"
-            "#Optional evaluations;Earned reward points\n"
-            "student2@example.com;False;0;0;0;1;0\n"
-            "student@example.com;False;1;1;0;1;65\n"
+            "#Optional evaluations;Earned reward points (semester);Earned status points (total)\n"
+            "student2@example.com;False;0;0;0;1;0;0\n"
+            "student@institution.example.com;True;1;1;0;1;65;68\n"
         )
         self.assertEqual(response.content, expected_content.encode("utf-8"))
 
@@ -2021,7 +2083,6 @@ class TestEvaluationCopyView(WebTestStaffMode):
 @override_settings(EXAM_QUESTIONNAIRE_IDS=[111])
 class TestEvaluationExamCreation(WebTestStaffMode):
     csrf_checks = False
-    url = reverse("staff:create_exam_evaluation")
 
     @classmethod
     def setUpTestData(cls):
@@ -2030,13 +2091,17 @@ class TestEvaluationExamCreation(WebTestStaffMode):
         cls.course = baker.make(Course)
         vote_start_datetime = datetime.datetime.now() - datetime.timedelta(days=50)
         cls.evaluation = baker.make(Evaluation, course=cls.course, vote_start_datetime=vote_start_datetime)
-        cls.evaluation.participants.set(baker.make(UserProfile, _quantity=3))
+        cls.url = reverse("staff:create_exam_evaluation", args=[cls.evaluation.pk])
+        cls.evaluation.participants.set(baker.make(UserProfile, _quantity=3, _bulk_create=True))
         cls.contributions = baker.make(
             Contribution, evaluation=cls.evaluation, _fill_optional=["contributor"], _quantity=3, _bulk_create=True
         )
         cls.exam_type = baker.make(ExamType)
         cls.exam_date = datetime.date.today() + datetime.timedelta(days=10)
-        cls.params = {"base_evaluation": cls.evaluation.pk, "exam_date": cls.exam_date, "exam_type": cls.exam_type.id}
+        cls.params = {
+            f"exam_creation_{cls.evaluation.pk}-exam_date": cls.exam_date,
+            f"exam_creation_{cls.evaluation.pk}-exam_type": cls.exam_type.id,
+        }
         cls.exam_questionnaire = baker.make(Questionnaire, pk=111)
 
     def test_create_exam_evaluation(self):
@@ -2217,11 +2282,14 @@ class TestEvaluationEditView(WebTestStaffMode):
         )
         cls.url = reverse("staff:evaluation_edit", args=[cls.evaluation.pk])
 
-        baker.make(Questionnaire, question_assignments=[baker.make(QuestionAssignment)])
-        cls.general_assignment = baker.make(QuestionAssignment)
+        baker.make(
+            Questionnaire,
+            question_assignments=[baker.make(QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT)],
+        )
+        cls.general_assignment = baker.make(QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT)
         cls.general_questionnaire = baker.make(Questionnaire, question_assignments=[cls.general_assignment])
         cls.evaluation.general_contribution.questionnaires.set([cls.general_questionnaire])
-        cls.contributor_assignment = baker.make(QuestionAssignment)
+        cls.contributor_assignment = baker.make(QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT)
         cls.contributor_questionnaire = baker.make(
             Questionnaire,
             type=Questionnaire.Type.CONTRIBUTOR,
@@ -2306,6 +2374,7 @@ class TestEvaluationEditView(WebTestStaffMode):
             evaluations_participating_in=[self.evaluation, already_evaluated],
             evaluations_voted_for=[already_evaluated],
             _quantity=5,
+            _bulk_create=True,
         )
 
         page = self.app.get(self.url, user=self.manager)
@@ -2332,6 +2401,7 @@ class TestEvaluationEditView(WebTestStaffMode):
             evaluations_participating_in=[self.evaluation, already_evaluated],
             evaluations_voted_for=[already_evaluated],
             _quantity=4,
+            _bulk_create=True,
         )
         baker.make(
             RewardPointGranting,
@@ -2364,28 +2434,32 @@ class TestEvaluationEditView(WebTestStaffMode):
         self.assertNotIn("The removal as participant has granted the user &quot;d@institution.example.com&quot;", page)
 
     def test_questionnaire_with_answers_warning(self):
+        ws = lambda s: s.replace(" ", r"\s*")  # noqa: E731
+
         page = self.app.get(self.url, user=self.manager)
-        self.assertIn('<label class="form-check-label" for="id_general_questionnaires_3">', page)
-        self.assertIn('<label class="form-check-label" for="id_contributions-0-questionnaires_0">', page)
-        self.assertIn('<label class="form-check-label" for="id_contributions-1-questionnaires_0">', page)
+        self.assertRegex(page.text, ws('<label class="form-check-label" for="id_general_questionnaires_3" >'))
+        self.assertRegex(page.text, ws('<label class="form-check-label" for="id_contributions-0-questionnaires_0" >'))
+        self.assertRegex(page.text, ws('<label class="form-check-label" for="id_contributions-1-questionnaires_0" >'))
 
         baker.make(TextAnswer, contribution=self.evaluation.general_contribution, assignment=self.general_assignment)
         baker.make(RatingAnswerCounter, contribution=self.contribution1, assignment=self.contributor_assignment)
 
         page = self.app.get(self.url, user=self.manager)
-        self.assertIn('<label class="form-check-label badge bg-danger" for="id_general_questionnaires_3">', page)
-        self.assertIn(
-            '<label class="form-check-label badge bg-danger" for="id_contributions-0-questionnaires_0">', page
+        self.assertRegex(
+            page.text, ws('<label class="form-check-label badge bg-danger" for="id_general_questionnaires_3" >')
         )
-        self.assertNotIn(
-            '<label class="form-check-label badge bg-danger" for="id_contributions-1-questionnaires_0">', page
+        self.assertRegex(
+            page.text, ws('<label class="form-check-label badge bg-danger" for="id_contributions-0-questionnaires_0" >')
+        )
+        self.assertNotRegex(
+            page.text, ws('<label class="form-check-label badge bg-danger" for="id_contributions-1-questionnaires_0" >')
         )
 
         baker.make(RatingAnswerCounter, contribution=self.contribution2, assignment=self.contributor_assignment)
 
         page = self.app.get(self.url, user=self.manager)
-        self.assertIn(
-            '<label class="form-check-label badge bg-danger" for="id_contributions-1-questionnaires_0">', page
+        self.assertRegex(
+            page.text, ws('<label class="form-check-label badge bg-danger" for="id_contributions-1-questionnaires_0" >')
         )
 
     @patch("django.utils.translation._trans", wraps=translation._trans)  # type: ignore[attr-defined]
@@ -2420,10 +2494,40 @@ class TestEvaluationEditView(WebTestStaffMode):
     def test_general_contribution_log_entry(self):
         page = self.app.get(self.url, user=self.manager)
         self.assertContains(
-            page, '<p class="mt-3">The Contribution "General Contribution" was created.</p><ul></ul>', html=True
+            page,
+            f"""
+            <p class="mt-3">The Contribution "General Contribution" was created.</p>
+            <ul>
+                <li>Questionnaires added: {self.general_questionnaire.name}</li>
+            </ul>""",
+            html=True,
         )
 
+    def test_hidden_and_archived_not_shown(self):
+        hidden_questionnaire = baker.make(Questionnaire, visibility=Questionnaire.Visibility.HIDDEN)
+        archived_questionnaire = baker.make(Questionnaire, visibility=Questionnaire.Visibility.ARCHIVED)
+        selected_hidden_questionnaire = baker.make(Questionnaire, visibility=Questionnaire.Visibility.HIDDEN)
+        selected_archived_questionnaire = baker.make(Questionnaire, visibility=Questionnaire.Visibility.ARCHIVED)
 
+        self.evaluation.general_contribution.questionnaires.set(
+            [selected_hidden_questionnaire, selected_archived_questionnaire]
+        )
+
+        page = self.app.get(self.url, user=self.manager)
+
+        self.assertIn(selected_hidden_questionnaire.name, page)
+        self.assertIn(selected_archived_questionnaire.name, page)
+        self.assertNotIn(archived_questionnaire.name, page)
+        self.assertNotIn(hidden_questionnaire.name, page)
+
+
+@override_settings(
+    REWARD_POINTS=[
+        (1 / 3, 1),
+        (2 / 3, 2),
+        (3 / 3, 3),
+    ]
+)
 class TestEvaluationDeleteView(WebTestStaffMode):
     csrf_checks = False
     url = reverse("staff:evaluation_delete")
@@ -2464,6 +2568,7 @@ class TestEvaluationDeleteView(WebTestStaffMode):
             evaluations_participating_in=[self.evaluation, already_evaluated],
             evaluations_voted_for=[already_evaluated],
             _quantity=5,
+            _bulk_create=True,
         )
 
         self.assertEqual(reward_points_of_user(student), 0)
@@ -2492,6 +2597,12 @@ class TestEvaluationPreviewView(WebTestStaffModeWith200Check):
         # regression test for #1747
         self.evaluation.general_contribution.questionnaires.set([])
         self.app.get(self.url, user=self.manager, status=200)
+
+    def test_lang_undecided(self) -> None:
+        evaluation = baker.make(Evaluation, main_language=Evaluation.UNDECIDED_MAIN_LANGUAGE)
+        evaluation.ensure_general_contribution().questionnaires.set([baker.make(Questionnaire)])
+        url = reverse("staff:evaluation_preview", args=[evaluation.pk])
+        self.app.get(url, user=self.manager, status=200)
 
 
 class TestEvaluationImportPersonsView(WebTestStaffMode):
@@ -2855,7 +2966,12 @@ class TestEvaluationTextAnswerView(WebTest):
         cls.evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
 
         questionnaire = baker.make(Questionnaire)
-        assignment = baker.make(QuestionAssignment, questionnaire=questionnaire, question__type=QuestionType.TEXT)
+        assignment = baker.make(
+            QuestionAssignment,
+            questionnaire=questionnaire,
+            question__type=QuestionType.TEXT,
+            counts_for_grade=False,
+        )
         contribution = baker.make(
             Contribution,
             evaluation=cls.evaluation,
@@ -2978,6 +3094,7 @@ class TestEvaluationTextAnswerView(WebTest):
             vote_end_date=datetime.date.today() - datetime.timedelta(days=2),
             can_publish_text_results=True,
             _quantity=2,
+            _bulk_create=True,
         )
 
         for evaluation, answer_count in zip(evaluations, [1, 2], strict=True):
@@ -2986,7 +3103,9 @@ class TestEvaluationTextAnswerView(WebTest):
                 TextAnswer,
                 contribution=contribution,
                 assignment__question__type=QuestionType.TEXT,
+                assignment__counts_for_grade=False,
                 _quantity=answer_count,
+                _bulk_create=True,
             )
 
         url = reverse("staff:evaluation_textanswers", args=[self.evaluation2.pk])
@@ -3029,6 +3148,7 @@ class TestEvaluationTextAnswerView(WebTest):
             questionnaire=iter(questionnaires),
             question__type=QuestionType.TEXT,
             question__allows_additional_textanswers=False,
+            counts_for_grade=False,
             **kwargs,
         )
         baker.make(TextAnswer, assignment=iter(assignments), contribution=iter(contributions), **kwargs)
@@ -3083,6 +3203,7 @@ class TestEvaluationTextAnswerEditView(WebTestStaffMode):
             contribution=contribution,
             assignment__questionnaire=bottom_questionnaire,
             assignment__question__type=QuestionType.TEXT,
+            assignment__counts_for_grade=False,
             answer="test answer text",
         )
 
@@ -3129,9 +3250,19 @@ class TestSemesterFlaggedTextAnswersView(WebTestStaffMode):
 
         manager = make_manager()
         student = baker.make(UserProfile)
-        evaluations = baker.make(Evaluation, course__semester=semester, participants=[student], _quantity=3)
+        evaluations = baker.make(
+            Evaluation, course__semester=semester, participants=[student], _quantity=3, _bulk_create=True
+        )
         textanswers = [
-            [baker.make(TextAnswer, answer=f"Answer {i} {j}", contribution__evaluation=evaluation) for j in range(3)]
+            [
+                baker.make(
+                    TextAnswer,
+                    answer=f"Answer {i} {j}",
+                    contribution__evaluation=evaluation,
+                    assignment__counts_for_grade=False,
+                )
+                for j in range(3)
+            ]
             for i, evaluation in enumerate(evaluations)
         ]
 
@@ -3172,12 +3303,16 @@ class TestQuestionnaireNewVersionView(WebTestStaffMode):
         cls.manager = make_manager()
         cls.name_de_orig = "kurzer name"
         cls.name_en_orig = "short name"
-        questionnaire = baker.make(Questionnaire, name_de=cls.name_de_orig, name_en=cls.name_en_orig)
-        cls.url = f"/staff/questionnaire/{questionnaire.pk}/new_version"
+        cls.questionnaire = baker.make(Questionnaire, name_de=cls.name_de_orig, name_en=cls.name_en_orig)
+        cls.url = f"/staff/questionnaire/{cls.questionnaire.pk}/new_version"
 
-        baker.make(QuestionAssignment, questionnaire=questionnaire)
+        baker.make(
+            QuestionAssignment,
+            questionnaire=cls.questionnaire,
+            question__type=QuestionType.POSITIVE_LIKERT,
+        )
 
-    def test_changes_old_title(self):
+    def test_changes_old_title_and_visibility(self):
         page = self.app.get(url=self.url, user=self.manager)
         form = page.forms["questionnaire-form"]
 
@@ -3189,6 +3324,10 @@ class TestQuestionnaireNewVersionView(WebTestStaffMode):
 
         self.assertTrue(Questionnaire.objects.filter(name_de=self.name_de_orig, name_en=self.name_en_orig).exists())
         self.assertTrue(Questionnaire.objects.filter(name_de=new_name_de, name_en=new_name_en).exists())
+
+        self.assertEqual(
+            Questionnaire.objects.get(pk=self.questionnaire.pk).visibility, Questionnaire.Visibility.ARCHIVED
+        )
 
     def test_no_second_update(self):
         # First save.
@@ -3255,17 +3394,15 @@ class TestQuestionnaireIndexView(WebTestStaffMode):
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
-        cls.contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
-        cls.top_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        cls.bottom_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.BOTTOM)
+        cls.ordered_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP, order=5)
+        cls.normal_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
 
     def test_ordering(self):
         content = self.app.get(self.url, user=self.manager).body.decode()
-        top_index = content.index(self.top_questionnaire.name)
-        contributor_index = content.index(self.contributor_questionnaire.name)
-        bottom_index = content.index(self.bottom_questionnaire.name)
+        ordered_index = content.index(self.ordered_questionnaire.name)
+        normal_index = content.index(self.normal_questionnaire.name)
 
-        self.assertTrue(top_index < contributor_index < bottom_index)
+        self.assertTrue(normal_index < ordered_index)
 
 
 class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
@@ -3281,7 +3418,13 @@ class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
         cls.question = baker.make(
             Question, text_en="old", text_de="text", type=QuestionType.TEXT, allows_additional_textanswers=False
         )
-        baker.make(QuestionAssignment, questionnaire=cls.questionnaire, question=cls.question)
+        baker.make(
+            QuestionAssignment,
+            questionnaire=cls.questionnaire,
+            question=cls.question,
+            order=0,
+            counts_for_grade=False,
+        )
 
     def test_allowed_type_changes_on_used_questionnaire(self):
         baker.make(Contribution, questionnaires=[self.questionnaire], evaluation__state=Evaluation.State.IN_EVALUATION)
@@ -3348,8 +3491,37 @@ class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
         self.change_question().follow()
         self.assert_question_change(self.question)
 
+    def test_empty_extra_question_is_not_saved(self) -> None:
+        page = self.app.get(self.url, user=self.manager)
+        form = page.forms["questionnaire-form"]
+
+        form.submit().follow()
+
+        self.assertEqual(self.questionnaire.question_assignments.count(), 1)
+
+    def test_rejects_counting_question_when_changing_to_dropout(self) -> None:
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
+        assignment = baker.make(
+            QuestionAssignment,
+            questionnaire=questionnaire,
+            question__type=QuestionType.POSITIVE_LIKERT,
+            counts_for_grade=True,
+        )
+
+        page = self.app.get(reverse("staff:questionnaire_edit", args=[questionnaire.pk]), user=self.manager)
+        form = page.forms["questionnaire-form"]
+        form["type"] = Questionnaire.Type.DROPOUT
+        response = form.submit()
+
+        self.assertIn("Dropout questionnaires cannot contain questions that count toward the grade.", response)
+
+        questionnaire.refresh_from_db()
+        assignment.refresh_from_db()
+        self.assertEqual(questionnaire.type, Questionnaire.Type.TOP)
+        self.assertTrue(assignment.counts_for_grade)
+
     def test_copy_on_write_used_question(self) -> None:
-        baker.make(QuestionAssignment, question=self.question)
+        baker.make(QuestionAssignment, question=self.question, counts_for_grade=False)
 
         self.change_question().follow()
 
@@ -3375,16 +3547,30 @@ class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
     def test_delete_question(self) -> None:
         other_questionnaire = baker.make(Questionnaire)
         # Use HEADING to test for a regression, see https://github.com/e-valuation/EvaP/pull/2665
-        other_question = baker.make(
-            Question, questionnaires=[self.questionnaire, other_questionnaire], type=QuestionType.HEADING
+        other_question = baker.make(Question, type=QuestionType.HEADING)
+        baker.make(
+            QuestionAssignment,
+            question=other_question,
+            questionnaire=self.questionnaire,
+            order=1,
+            counts_for_grade=False,
         )
-        baker.make(QuestionAssignment, questionnaire=self.questionnaire, question__type=QuestionType.GRADE)
+        baker.make(
+            QuestionAssignment,
+            question=other_question,
+            questionnaire=other_questionnaire,
+            order=2,
+            counts_for_grade=False,
+        )
+
+        baker.make(QuestionAssignment, questionnaire=self.questionnaire, question__type=QuestionType.GRADE, order=3)
+
         baker.make(Contribution, questionnaires=[self.questionnaire], evaluation__state=Evaluation.State.NEW)
         page = self.app.get(self.url, user=self.manager)
         form = page.forms["questionnaire-form"]
-        form["question_assignments-0-DELETE"] = "on"
+        form["question_assignments-0-DELETE"] = "on"  # self.question in self.questionnaire
         form["question_assignments-0-type"].force_value(-1)
-        form["question_assignments-1-DELETE"] = "on"
+        form["question_assignments-1-DELETE"] = "on"  # other_question in self.questionnaire
         form.submit().follow()
         self.assertQuerySetEqual(self.question.questionnaires.all(), [])
         with self.assertRaises(Question.DoesNotExist):
@@ -3398,7 +3584,8 @@ class TestQuestionnaireViewView(WebTestStaffModeWith200Check):
         cls.test_users = [make_manager()]
 
         questionnaire = baker.make(Questionnaire)
-        cls.question = baker.make(Question, questionnaires=[questionnaire])
+        cls.question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT)
+        baker.make(QuestionAssignment, questionnaire=questionnaire, question=cls.question)
         cls.url = f"/staff/questionnaire/{questionnaire.pk}"
 
         baker.make(
@@ -3408,6 +3595,7 @@ class TestQuestionnaireViewView(WebTestStaffModeWith200Check):
             _quantity=3,
             _bulk_create=True,
             question__allows_additional_textanswers=False,
+            counts_for_grade=iter([False, True, True]),
         )
 
     def test_preview_change_language(self):
@@ -3482,7 +3670,11 @@ class TestQuestionnaireCopyView(WebTestStaffMode):
         questionnaire = baker.make(Questionnaire)
         cls.url = f"/staff/questionnaire/{questionnaire.pk}/copy"
 
-        baker.make(QuestionAssignment, questionnaire=questionnaire)
+        baker.make(
+            QuestionAssignment,
+            questionnaire=questionnaire,
+            question__type=QuestionType.POSITIVE_LIKERT,
+        )
 
     def test_not_changing_name_fails(self):
         response = self.app.get(self.url, user=self.manager, status=200)
@@ -3818,7 +4010,13 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         )
         top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         baker.make(Question, questionnaires=[top_general_questionnaire], type=QuestionType.POSITIVE_LIKERT)
-        cls.text_question = baker.make(Question, questionnaires=[top_general_questionnaire], type=QuestionType.TEXT)
+        cls.text_question = baker.make(Question, type=QuestionType.TEXT)
+        baker.make(
+            QuestionAssignment,
+            questionnaire=top_general_questionnaire,
+            question=cls.text_question,
+            counts_for_grade=False,
+        )
         cls.evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
 
     def assert_transition(
@@ -3832,7 +4030,12 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         expected_new_decision = old_decision if expected_new_decision == "unchanged" else expected_new_decision
 
         with run_in_staff_mode(self):
-            textanswer = baker.make(TextAnswer, contribution__evaluation=self.evaluation, review_decision=old_decision)
+            textanswer = baker.make(
+                TextAnswer,
+                contribution__evaluation=self.evaluation,
+                review_decision=old_decision,
+                assignment__counts_for_grade=False,
+            )
             params = {"answer_id": textanswer.id, "action": action}
             response = self.app.post(self.url, params=params, user=self.manager, status=status)
 
@@ -3910,7 +4113,11 @@ class TestEvaluationTextanswersUpdateFlagView(WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
-        cls.answer = baker.make(TextAnswer, contribution__evaluation__can_publish_text_results=True)
+        cls.answer = baker.make(
+            TextAnswer,
+            contribution__evaluation__can_publish_text_results=True,
+            assignment__counts_for_grade=False,
+        )
 
     def test_post_update(self):
         with run_in_staff_mode(self):

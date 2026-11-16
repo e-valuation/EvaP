@@ -58,18 +58,10 @@ class TestStudentIndexView(WebTestWith200Check):
             self.app.get(self.url, user=self.user)
 
     @override_settings(
-        GLOBAL_EVALUATION_PROGRESS_REWARDS=[
-            (Fraction(1, 10), {"de": "a dog", "en": "a dog"}),
-            (Fraction(5, 10), {"de": "a quokka", "en": "a quokka"}),
+        GLOBAL_EVALUATION_PROGRESS=[
+            (Fraction("0.1"), {"de": "a dog", "en": "a dog"}),
+            (Fraction("0.5"), {"de": "a quokka", "en": "a quokka"}),
         ],
-        GLOBAL_EVALUATION_PROGRESS_CAMPAIGN={
-            "title_de": "global_evaluation_progress_title_str",
-            "title_en": "global_evaluation_progress_title_str",
-            "info_title_de": "global_evaluation_progress_info_title_str",
-            "info_title_en": "global_evaluation_progress_info_title_str",
-            "info_text_de": "global_evaluation_progress_info_text_str",
-            "info_text_en": "global_evaluation_progress_info_text_str",
-        },
         GLOBAL_EVALUATION_PROGRESS_EXCLUDED_COURSE_TYPE_IDS=[1042],
         GLOBAL_EVALUATION_PROGRESS_EXCLUDED_EVALUATION_IDS=[1043],
     )
@@ -92,11 +84,11 @@ class TestStudentIndexView(WebTestWith200Check):
         make_evaluation(course__is_private=True)
         make_evaluation(id=1043)
         make_evaluation(course__type__id=1042)
-        make_evaluation(_quantity=len(excluded_states), state=iter(excluded_states))
+        make_evaluation(_quantity=len(excluded_states), _bulk_create=True, state=iter(excluded_states))
 
         # included
         included_evaluations = [
-            *make_evaluation(_quantity=len(included_states), state=iter(included_states)),
+            *make_evaluation(_quantity=len(included_states), _bulk_create=True, state=iter(included_states)),
             make_evaluation(_voter_count=123, _participant_count=456),
         ]
 
@@ -107,10 +99,7 @@ class TestStudentIndexView(WebTestWith200Check):
         expected_voter_percent = 100 * expected_voters // expected_participants
 
         page = self.app.get(self.url, user=self.user)
-        self.assertIn("global_evaluation_progress_title_str", page)
-        self.assertIn("global_evaluation_progress_info_title_str", page)
-        self.assertIn("global_evaluation_progress_info_text_str", page)
-        self.assertIn("Last evaluation:", page)
+        self.assertIn("Last evaluation submitted:", page)
         self.assertIn(
             f"{expected_voters} of {expected_participants} evaluations submitted ({expected_voter_percent}%)", page
         )
@@ -119,7 +108,7 @@ class TestStudentIndexView(WebTestWith200Check):
         self.assertIn("a dog", page)
         self.assertIn("50%", page)
 
-    @override_settings(GLOBAL_EVALUATION_PROGRESS_REWARDS=[(Fraction("0.07"), {"de": "a dog", "en": "a dog"})])
+    @override_settings(GLOBAL_EVALUATION_PROGRESS=[(Fraction("0.07"), {"de": "a dog", "en": "a dog"})])
     def test_global_evaluation_progress_edge_cases(self):
         # no active semester
         Semester.objects.update(is_active=False)
@@ -136,7 +125,7 @@ class TestStudentIndexView(WebTestWith200Check):
         self.assertIn("7%", page)
         self.assertIn("a dog", page)
 
-        # more voters than required for last reward
+        # more voters than required for last step
         baker.make(
             Evaluation,
             course__semester=semester,
@@ -150,15 +139,7 @@ class TestStudentIndexView(WebTestWith200Check):
         self.assertIn("a dog", page)
 
     @override_settings(
-        GLOBAL_EVALUATION_PROGRESS_REWARDS=[],
-        GLOBAL_EVALUATION_PROGRESS_CAMPAIGN={
-            "title_de": "global_evaluation_progress_title_str",
-            "title_en": "global_evaluation_progress_title_str",
-            "info_title_de": "global_evaluation_progress_info_title_str",
-            "info_title_en": "global_evaluation_progress_info_title_str",
-            "info_text_de": "global_evaluation_progress_info_text_str",
-            "info_text_en": "global_evaluation_progress_info_text_str",
-        },
+        GLOBAL_EVALUATION_PROGRESS=[],
     )
     def test_global_evaluation_progress_hidden(self):
         page = self.app.get(self.url, user=self.user)
@@ -193,9 +174,14 @@ class TestVoteView(WebTest):
             questionnaire=cls.contributor_questionnaire,
             order=0,
             question__type=QuestionType.HEADING,
+            counts_for_grade=False,
         )
         cls.contributor_text_assignment = baker.make(
-            QuestionAssignment, questionnaire=cls.contributor_questionnaire, order=1, question__type=QuestionType.TEXT
+            QuestionAssignment,
+            questionnaire=cls.contributor_questionnaire,
+            order=1,
+            question__type=QuestionType.TEXT,
+            counts_for_grade=False,
         )
         cls.contributor_likert_assignment = baker.make(
             QuestionAssignment,
@@ -209,9 +195,14 @@ class TestVoteView(WebTest):
             questionnaire=cls.top_general_questionnaire,
             order=0,
             question__type=QuestionType.HEADING,
+            counts_for_grade=False,
         )
         cls.top_text_assignment = baker.make(
-            QuestionAssignment, questionnaire=cls.top_general_questionnaire, order=1, question__type=QuestionType.TEXT
+            QuestionAssignment,
+            questionnaire=cls.top_general_questionnaire,
+            order=1,
+            question__type=QuestionType.TEXT,
+            counts_for_grade=False,
         )
         cls.top_likert_assignment = baker.make(
             QuestionAssignment,
@@ -228,12 +219,14 @@ class TestVoteView(WebTest):
             questionnaire=cls.bottom_general_questionnaire,
             order=0,
             question__type=QuestionType.HEADING,
+            counts_for_grade=False,
         )
         cls.bottom_text_assignment = baker.make(
             QuestionAssignment,
             questionnaire=cls.bottom_general_questionnaire,
             order=1,
             question__type=QuestionType.TEXT,
+            counts_for_grade=False,
         )
         cls.bottom_likert_assignment = baker.make(
             QuestionAssignment,
@@ -266,24 +259,26 @@ class TestVoteView(WebTest):
         )
 
     def test_question_ordering(self):
+        # Reorder questions after creation, regression test for #2741
+        self.bottom_text_assignment.order = 4
+        self.bottom_text_assignment.save()
+        self.bottom_grade_assignment.order = 1
+        self.bottom_grade_assignment.save()
+
         page = self.app.get(self.url, user=self.voting_user1, status=200)
 
-        top_heading_index = page.body.decode().index(self.top_heading_assignment.question.text)
-        top_text_index = page.body.decode().index(self.top_text_assignment.question.text)
-
-        contributor_heading_index = page.body.decode().index(self.contributor_heading_assignment.question.text)
-        contributor_likert_index = page.body.decode().index(self.contributor_likert_assignment.question.text)
-
-        bottom_heading_index = page.body.decode().index(self.bottom_heading_assignment.question.text)
-        bottom_grade_index = page.body.decode().index(self.bottom_grade_assignment.question.text)
+        def index(assignment):
+            return page.body.decode().index(assignment.question.text)
 
         self.assertTrue(
-            top_heading_index
-            < top_text_index
-            < contributor_heading_index
-            < contributor_likert_index
-            < bottom_heading_index
-            < bottom_grade_index
+            index(self.top_heading_assignment)
+            < index(self.top_text_assignment)
+            < index(self.contributor_heading_assignment)
+            < index(self.contributor_likert_assignment)
+            < index(self.bottom_heading_assignment)
+            < index(self.bottom_grade_assignment)
+            < index(self.bottom_likert_assignment)
+            < index(self.bottom_text_assignment)
         )
 
     def fill_form(self, form, fill_general_complete=True, fill_contributors_complete=True):
@@ -494,6 +489,7 @@ class TestVoteView(WebTest):
             questionnaire=dropout_questionnaire,
             order=0,
             question__type=QuestionType.POSITIVE_LIKERT,
+            counts_for_grade=False,
         )
         self.evaluation.general_contribution.questionnaires.add(dropout_questionnaire)
 
@@ -642,19 +638,23 @@ class TestVoteView(WebTest):
 
 
 class TestDropoutView(WebTest):
+    evaluation: Evaluation
+
     @classmethod
     def setUpTestData(cls) -> None:
         cls.user = baker.make(UserProfile, email="student@institution.example.com")
         cls.user2 = baker.make(UserProfile, email="student2@institution.example.com")
 
         cls.normal_assignment = baker.make(QuestionAssignment, question__type=QuestionType.EASY_DIFFICULT)
-        cls.dropout_assignment = baker.make(QuestionAssignment, question__type=QuestionType.POSITIVE_YES_NO)
+        cls.dropout_assignment = baker.make(
+            QuestionAssignment, question__type=QuestionType.POSITIVE_YES_NO, counts_for_grade=False
+        )
 
         cls.normal_questionnaire = baker.make(
             Questionnaire,
             type=Questionnaire.Type.TOP,
             question_assignments=[
-                baker.make(QuestionAssignment, question__type=QuestionType.TEXT),
+                baker.make(QuestionAssignment, question__type=QuestionType.TEXT, counts_for_grade=False),
                 cls.normal_assignment,
             ],
         )
@@ -666,7 +666,7 @@ class TestDropoutView(WebTest):
             Evaluation, state=Evaluation.State.IN_EVALUATION, participants=[cls.user, cls.user2], main_language="en"
         )
 
-        cls.evaluation.general_contribution.questionnaires.add(cls.dropout_questionnaire, cls.normal_questionnaire)
+        cls.evaluation.general_contribution.questionnaires.add(cls.dropout_questionnaire, cls.normal_questionnaire)  # type: ignore[union-attr]
 
     def assert_no_answer_set(self, form, dropout_questionnaire: Questionnaire):
         for name, fields in form.fields.items():

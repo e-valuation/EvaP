@@ -7,6 +7,7 @@
 @import "adjustments";
 @import "utilities";
 
+$color-mode-type: data;
 html {
     position: relative;
     min-height: 100%;
@@ -15,13 +16,24 @@ html {
 
 body {
     overflow-y: scroll !important;
-    background-image: url("../images/triangles_gray.svg");
+    background-image: url("../images/triangles_light.svg");
     background-size: cover;
     background-attachment: fixed;
 
     &.mb-footer {
         margin-bottom: 60px; // keep space for footer
     }
+}
+
+@include color-mode(dark) {
+    body {
+        background-image: url("../images/triangles_dark.svg");
+    }
+}
+
+.hide {
+    opacity: 0;
+    cursor: inherit;
 }
 
 .max-content-height {
@@ -39,10 +51,6 @@ body {
 
     a {
         white-space: nowrap;
-    }
-
-    .navbar-nav .nav-link.nav-link-multiline {
-        line-height: 1.2;
     }
 }
 

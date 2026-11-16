@@ -1,6 +1,6 @@
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.db.models import Q, Sum
+from django.db.models import Q, QuerySet, Sum
 from django.dispatch import Signal
 from django.utils.translation import gettext_lazy as _
 
@@ -20,10 +20,10 @@ class RewardPointRedemptionEvent(models.Model):
     )
 
     @property
-    def can_delete(self):
+    def can_delete(self) -> bool:
         return not self.reward_point_redemptions.exists()
 
-    def users_with_redeemed_points(self):
+    def users_with_redeemed_points(self) -> QuerySet[UserProfile]:
         return UserProfile.objects.filter(reward_point_redemptions__event=self).annotate(
             points=Sum("reward_point_redemptions__value", default=0, filter=Q(reward_point_redemptions__event=self))
         )
@@ -39,6 +39,11 @@ class RewardPointGranting(models.Model):
     semester = models.ForeignKey(Semester, models.PROTECT, related_name="reward_point_grantings")
     granting_time = models.DateTimeField(verbose_name=_("granting time"), auto_now_add=True)
     value = models.IntegerField(verbose_name=_("value"), validators=[MinValueValidator(1)])
+    # Participants receive reward points for participating in evaluations. Each point can be redeemed once for
+    # RewardPointRedemptionEvents, after which it is unavailable. Usually, reward points are double-counted as status
+    # points when contributes_to_status is True (currently everywhere in code). Status points cannot be redeemed and are
+    # only used to determine the user's status.
+    contributes_to_status = models.BooleanField(verbose_name=_("contributes to status"), default=True)
 
     granted_by_participation_removal = Signal()
     granted_by_evaluation_deletion = Signal()

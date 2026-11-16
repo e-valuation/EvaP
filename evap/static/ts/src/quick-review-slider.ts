@@ -158,10 +158,12 @@ export class QuickReviewSlider {
             return;
         }
 
+        if (action === Action.TextanswerEdit) {
+            return;
+        }
+
         // Update UI after submit is done (https://stackoverflow.com/q/71473512/13679671)
         setTimeout(() => {
-            assert(action !== Action.TextanswerEdit, "You should have been redirected already.");
-
             if (action === Action.Unreview) {
                 delete this.selectedSlide.dataset.review;
             } else {
@@ -175,6 +177,8 @@ export class QuickReviewSlider {
             }
 
             this.slideTo(this.selectedSlideIndex + 1);
+            // Lint is just wrong
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-arguments
             const correspondingButtonRight = selectOrError<HTMLElement>(submitSelectorForAction(action), this.slider);
             correspondingButtonRight.focus();
         });

@@ -38,13 +38,7 @@
                         </thead>
                         <tbody>
                             {% for form_element in formset %}
-                                {% include 'bootstrap_form_errors.html' with errors=form_element.non_field_errors %}
-                                {% include 'bootstrap_form_errors.html' with errors=form_element.question_form.non_field_errors %}
-
                                 <tr class="tomselecttr sortable">
-                                    {% for hidden in form_element.hidden_fields %}
-                                        {{ hidden }}
-                                    {% endfor %}
                                     {% if editable %}
                                         <td class="movable">
                                             <span class="movable-icon fas fa-up-down"></span>
@@ -52,22 +46,60 @@
                                     {% else %}
                                         <td></td>
                                     {% endif %}
-                                    {% for hidden in form_element.question_form.hidden_fields %}
-                                        {{ hidden }}
-                                    {% endfor %}
-                                    <td>{% include 'bootstrap_form_field_widget.html' with field=form_element.question_form.text_de %}</td>
-                                    <td>{% include 'bootstrap_form_field_widget.html' with field=form_element.question_form.text_en %}</td>
+                                    <td>
+                                        {% for hidden in form_element.hidden_fields %}
+                                            {{ hidden }}
+                                        {% endfor %}
+                                        {% for hidden in form_element.question_form.hidden_fields %}
+                                            {{ hidden }}
+                                        {% endfor %}
+                                        {% include 'bootstrap_form_field_widget.html' with field=form_element.question_form.text_de %}
+                                        {% include 'bootstrap_form_errors.html' with errors=form_element.non_field_errors %}
+                                        {% include 'bootstrap_form_errors.html' with errors=form_element.question_form.non_field_errors %}
+                                    </td>
+                                    <td>
+                                        {% include 'bootstrap_form_field_widget.html' with field=form_element.question_form.text_en %}
+                                    </td>
                                     <td class="question-type d-inline-block">
                                         {% include 'bootstrap_form_field_widget.html' with field=form_element.question_form.type %}
                                         <div class="form-check mt-1">
-                                            <input class="form-check-input allow-textanswer-checkbox" id="{{ form_element.question_form.allows_additional_textanswers.id_for_label }}"
-                                                   name="{{ form_element.question_form.allows_additional_textanswers.html_name }}" type="checkbox" data-keep="true"
-                                                {% if form_element.question_form.allows_additional_textanswers.value %} checked{% endif %}
-                                                {% if form_element.question_form.allows_additional_textanswers.field.disabled %} disabled{% endif %} />
-                                            <label class="form-check-label" for="{{ form_element.question_form.allows_additional_textanswers.id_for_label }}">{{ form_element.question_form.allows_additional_textanswers.label }}</label>
+                                            <input
+                                                class="form-check-input allow-textanswer-checkbox"
+                                                id="{{ form_element.question_form.allows_additional_textanswers.id_for_label }}"
+                                                name="{{ form_element.question_form.allows_additional_textanswers.html_name }}"
+                                                type="checkbox"
+                                                data-keep="true"
+                                                {% if form_element.question_form.allows_additional_textanswers.value %}
+                                                    checked
+                                                {% endif %}
+                                                {% if form_element.question_form.allows_additional_textanswers.field.disabled %}
+                                                    disabled
+                                                {% endif %}
+                                            />
+                                            <label
+                                                class="form-check-label"
+                                                for="{{ form_element.question_form.allows_additional_textanswers.id_for_label }}"
+                                            >{{ form_element.question_form.allows_additional_textanswers.label }}</label>
+                                        </div>
+                                        <div class="form-check mt-1">
+                                            <input
+                                                class="form-check-input counts-for-grade-checkbox"
+                                                id="{{ form_element.counts_for_grade.id_for_label }}"
+                                                name="{{ form_element.counts_for_grade.html_name }}"
+                                                type="checkbox"
+                                                data-keep="true"
+                                                {% if form_element.counts_for_grade.value %}checked{% endif %}
+                                                {% if form_element.counts_for_grade.field.disabled %}disabled{% endif %}
+                                            />
+                                            <label
+                                                class="form-check-label"
+                                                for="{{ form_element.counts_for_grade.id_for_label }}"
+                                            >{{ form_element.counts_for_grade.label }}</label>
                                         </div>
                                     </td>
-                                    <td>{% include 'bootstrap_form_field_widget.html' with field=form_element.DELETE class="d-none" %}</td>
+                                    <td>
+                                        {% include 'bootstrap_form_field_widget.html' with field=form_element.DELETE class="d-none" %}
+                                    </td>
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -77,17 +109,26 @@
         </fieldset>
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">
-                <button type="submit" class="btn btn-primary" id="questionnaire-save-btn">{% translate 'Save questionnaire' %}</button>
+                <button type="submit" class="btn btn-primary" id="questionnaire-save-btn">
+                    {% translate 'Save questionnaire' %}
+                </button>
             </div>
         </div>
     </form>
 {% endblock %}
 
-
 {% block additional_javascript %}
     {% if editable %}
         <script type="module">
             import { makeFormSortable } from "{% static 'js/sortable-form.js' %}";
+            import { StaffQuestionnaireForm } from "{% static 'js/staff-questionnaire-form.js' %}";
+
+            const staffQuestionnaireForm = new StaffQuestionnaireForm(
+                document.getElementById("question_table"),
+                document.getElementById("questionnaire-form"),
+            );
+            staffQuestionnaireForm.attach();
+
             const rowChanged = function(row) {
                 const nameDe = row.querySelector('textarea[id$=-text_de]')?.value;
                 const nameEn = row.querySelector('textarea[id$=-text_en]')?.value;
@@ -98,26 +139,8 @@
                     el.remove();
                 });
                 applyTomSelect(row.querySelectorAll("select"));
-                registerSelectChangedHandlers();
             };
-            makeFormSortable("question_table", "questions", rowChanged, rowAdded, true, true);
-
-            const selectChangedHandler = function(e) {
-                const checkbox = this.closest("td.question-type").querySelector("input[type=checkbox]");
-                if (e.currentTarget.value == 0 || e.currentTarget.value == 5) {  // 0: Text question; 5: Heading
-                    checkbox.checked = false;
-                    checkbox.disabled = true;
-                } else {
-                    checkbox.disabled = false;
-                }
-            };
-
-            const registerSelectChangedHandlers = function() {
-                document.querySelectorAll(".question-type select").forEach(selectElement => {
-                    selectElement.addEventListener('change', selectChangedHandler);
-                });
-            };
-            registerSelectChangedHandlers();
+            makeFormSortable("question_table", "question_assignments", rowChanged, rowAdded, true, true);
         </script>
     {% endif %}
 {% endblock %}

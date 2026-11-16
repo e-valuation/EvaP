@@ -1,17 +1,24 @@
 {% extends 'staff_base.html' %}
 
 {% load static %}
+{% load staff_templatetags %}
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% translate 'Programs' %}</li>
+
+    {% breadcrumb_item %}
+        {% translate 'Programs' %}
+    {% endbreadcrumb_item %}
 {% endblock %}
 
 {% block content %}
     {{ block.super }}
 
     <div class="mb-3">
-        <a href="{% url 'staff:program_merge_selection' %}" class="btn btn-sm btn-secondary">{% translate 'Merge programs' %}</a>
+        <a
+            href="{% url 'staff:program_merge_selection' %}"
+            class="btn btn-sm btn-secondary"
+        >{% translate 'Merge programs' %}</a>
     </div>
 
     <form id="program-form" method="POST" class="form-horizontal tomselectform">
@@ -52,8 +59,14 @@
                                     {% if form.instance.can_be_deleted_by_manager %}
                                         {% include 'bootstrap_form_field_widget.html' with field=form.DELETE class="d-none" %}
                                     {% else %}
-                                        <button type="button" disabled class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="left"
-                                            title="{% translate 'This program cannot be deleted because it is used for at least one course.' %}">
+                                        <button
+                                            type="button"
+                                            disabled
+                                            class="btn btn-sm btn-danger"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="left"
+                                            title="{% translate 'This program cannot be deleted because it is used for at least one course.' %}"
+                                        >
                                             <span class="fas fa-trash"></span>
                                         </button>
                                     {% endif %}

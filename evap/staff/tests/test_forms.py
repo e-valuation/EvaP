@@ -37,6 +37,8 @@ from evap.staff.forms import (
     EvaluationCopyForm,
     EvaluationEmailForm,
     EvaluationForm,
+    QuestionAssignmentForm,
+    QuestionForm,
     QuestionnaireForm,
     UserForm,
 )
@@ -524,9 +526,9 @@ class ContributionFormsetTests(TestCase):
         formset = InlineContributionFormset(instance=evaluation, form_kwargs={"evaluation": evaluation}, data=data)
         self.assertTrue(formset.is_valid())
 
-    def test_hidden_and_managers_only(self):
+    def test_hidden_archived_and_managers_only(self):
         """
-        Asserts that hidden questionnaires are shown to managers only if they are already selected for a
+        Asserts that hidden and archived questionnaires are shown to managers only if they are already selected for a
         contribution of the Evaluation, and that manager only questionnaires are always shown.
         Regression test for #593.
         """
@@ -536,6 +538,9 @@ class ContributionFormsetTests(TestCase):
         )
         questionnaire_hidden = baker.make(
             Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, visibility=Questionnaire.Visibility.HIDDEN
+        )
+        questionnaire_archived = baker.make(
+            Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, visibility=Questionnaire.Visibility.ARCHIVED
         )
         questionnaire_managers_only = baker.make(
             Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, visibility=Questionnaire.Visibility.MANAGERS
@@ -555,15 +560,15 @@ class ContributionFormsetTests(TestCase):
         self.assertEqual(expected, set(formset.forms[0].fields["questionnaires"].queryset))
         self.assertEqual(expected, set(formset.forms[1].fields["questionnaires"].queryset))
 
-        # Suppose we had a hidden questionnaire already selected, that should be shown as well.
-        contribution1.questionnaires.set([questionnaire_hidden])
+        # Suppose we had an archived and hidden questionnaire already selected, that should be shown as well.
+        contribution1.questionnaires.set([questionnaire_hidden, questionnaire_archived])
 
         InlineContributionFormset = inlineformset_factory(
             Evaluation, Contribution, formset=ContributionFormset, form=ContributionForm, extra=1
         )
         formset = InlineContributionFormset(instance=evaluation, form_kwargs={"evaluation": evaluation})
 
-        expected = {questionnaire, questionnaire_managers_only, questionnaire_hidden}
+        expected = {questionnaire, questionnaire_managers_only, questionnaire_hidden, questionnaire_archived}
         self.assertEqual(expected, set(formset.forms[0].fields["questionnaires"].queryset))
         self.assertEqual(expected, set(formset.forms[1].fields["questionnaires"].queryset))
 
@@ -598,7 +603,11 @@ class ContributionFormsetTests(TestCase):
         self.assertTrue(formset.forms[0].show_delete_button)
         self.assertTrue(formset.forms[1].show_delete_button)
 
-        baker.make(RatingAnswerCounter, contribution=contribution)
+        baker.make(
+            RatingAnswerCounter,
+            contribution=contribution,
+            assignment__question__type=QuestionType.POSITIVE_LIKERT,
+        )
 
         self.assertFalse(formset.forms[0].show_delete_button)
         self.assertTrue(formset.forms[1].show_delete_button)
@@ -823,6 +832,7 @@ class CourseFormTests(TestCase):
             responsibles=[baker.make(UserProfile)],
             programs=[baker.make(Program)],
             _quantity=2,
+            _bulk_create=True,
         )
 
         form_data = get_form_data_from_instance(CourseForm, courses[0])
@@ -842,6 +852,7 @@ class CourseFormTests(TestCase):
             responsibles=[baker.make(UserProfile)],
             programs=[baker.make(Program)],
             _quantity=2,
+            _bulk_create=True,
         )
 
         form_data = get_form_data_from_instance(CourseForm, courses[1])
@@ -1026,17 +1037,23 @@ class EvaluationFormTests(TestCase):
 
     def test_unused_questionnaire_visibility(self):
         evaluation = baker.make(Evaluation)
-        questionnaire = baker.make(
+        questionnaire_hidden = baker.make(
             Questionnaire, visibility=Questionnaire.Visibility.HIDDEN, type=Questionnaire.Type.TOP
+        )
+        questionnaire_archived = baker.make(
+            Questionnaire, visibility=Questionnaire.Visibility.ARCHIVED, type=Questionnaire.Type.TOP
         )
 
         form = EvaluationForm(instance=evaluation, semester=evaluation.course.semester)
-        self.assertNotIn(questionnaire, form.fields["general_questionnaires"].queryset)
+        self.assertNotIn(questionnaire_hidden, form.fields["general_questionnaires"].queryset)
+        self.assertNotIn(questionnaire_archived, form.fields["general_questionnaires"].queryset)
 
-        evaluation.general_contribution.questionnaires.add(questionnaire)
+        evaluation.general_contribution.questionnaires.add(questionnaire_hidden)
+        evaluation.general_contribution.questionnaires.add(questionnaire_archived)
 
         form = EvaluationForm(instance=evaluation, semester=evaluation.course.semester)
-        self.assertIn(questionnaire, form.fields["general_questionnaires"].queryset)
+        self.assertIn(questionnaire_hidden, form.fields["general_questionnaires"].queryset)
+        self.assertIn(questionnaire_archived, form.fields["general_questionnaires"].queryset)
 
     def test_answers_for_removed_questionnaires_deleted(self):
         # pylint: disable=too-many-locals
@@ -1148,3 +1165,23 @@ class EvaluationCopyFormTests(TestCase):
         copied_evaluation = form.save()
         self.assertNotEqual(copied_evaluation, self.evaluation)
         self.assertEqual(Evaluation.objects.count(), 2)
+
+
+class QuestionFormTests(TestCase):
+    def test_clean_rejects_counting_text_and_heading_questions(self):
+        for question_type in [QuestionType.TEXT, QuestionType.HEADING]:
+            with self.subTest(question_type=question_type):
+                assignment = baker.make(
+                    QuestionAssignment,
+                    questionnaire__type=Questionnaire.Type.TOP,
+                    question__type=QuestionType.POSITIVE_LIKERT,
+                    counts_for_grade=True,
+                )
+                form_data = get_form_data_from_instance(QuestionAssignmentForm, assignment)
+                form_data.update(get_form_data_from_instance(QuestionForm, assignment.question))
+                form_data["type"] = question_type
+                form_data["counts_for_grade"] = True
+
+                form = QuestionAssignmentForm(form_data, instance=assignment)
+                self.assertFalse(form.is_valid())
+                self.assertIn("Text and heading questions cannot count toward the grade.", form.non_field_errors())

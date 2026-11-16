@@ -1,11 +1,17 @@
 import time
+from collections.abc import Callable
 
 from django.conf import settings
 from django.contrib import messages
+from django.http import HttpRequest, HttpResponseBase
 from django.utils.translation import gettext as _
 
+from evap.evaluation.models import UserProfile
 
-def staff_mode_middleware(get_response):
+
+def staff_mode_middleware(
+    get_response: Callable[[HttpRequest], HttpResponseBase],
+) -> Callable[[HttpRequest], HttpResponseBase]:
     """
     Middleware handling the staff mode.
 
@@ -13,7 +19,7 @@ def staff_mode_middleware(get_response):
     Otherwise, the last request time will be updated.
     """
 
-    def middleware(request):
+    def middleware(request: HttpRequest) -> HttpResponseBase:
         if is_in_staff_mode(request):
             current_time = time.time()
             if current_time <= request.session.get("staff_mode_start_time", 0) + settings.STAFF_MODE_TIMEOUT:
@@ -31,6 +37,7 @@ def staff_mode_middleware(get_response):
                     messages.info(request, _("Your staff mode timed out."))
 
         if is_in_staff_mode(request):
+            assert isinstance(request.user, UserProfile)
             assert request.user.has_staff_permission
             request.user.is_participant = False
             request.user.is_student = False
@@ -41,19 +48,20 @@ def staff_mode_middleware(get_response):
             request.user.is_responsible_or_contributor_or_delegate = False
         else:
             request.user.is_staff = False
-            request.user.is_manager = False
-            request.user.is_reviewer = False
+            request.user.is_manager = False  # type: ignore[union-attr]
+            request.user.is_reviewer = False  # type: ignore[union-attr]
 
         return get_response(request)
 
     return middleware
 
 
-def is_in_staff_mode(request):
+def is_in_staff_mode(request: HttpRequest) -> bool:
     return "staff_mode_start_time" in request.session
 
 
-def update_staff_mode(request):
+def update_staff_mode(request: HttpRequest) -> None:
+    assert isinstance(request.user, UserProfile)
     if not request.user.has_staff_permission:
         exit_staff_mode(request)
         return
@@ -62,11 +70,11 @@ def update_staff_mode(request):
     request.session.modified = True
 
 
-def enter_staff_mode(request):
+def enter_staff_mode(request: HttpRequest) -> None:
     update_staff_mode(request)
 
 
-def exit_staff_mode(request):
+def exit_staff_mode(request: HttpRequest) -> None:
     if is_in_staff_mode(request):
         del request.session["staff_mode_start_time"]
         request.session.modified = True

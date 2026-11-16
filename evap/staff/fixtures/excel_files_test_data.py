@@ -1,6 +1,7 @@
 import csv
 import io
-from typing import TextIO
+from collections.abc import Iterable, Mapping
+from typing import Any, TextIO
 
 import openpyxl
 
@@ -220,7 +221,7 @@ wrong_column_count_excel_data = {
 # fmt: on
 
 
-def create_memory_excel_file(data):
+def create_memory_excel_file(data: Mapping[str, Iterable[Iterable[Any]]]) -> bytes:
     memory_excel_file = io.BytesIO()
     workbook = openpyxl.Workbook()
     for sheet_name, sheet_data in data.items():
@@ -233,7 +234,7 @@ def create_memory_excel_file(data):
     return memory_excel_file.getvalue()
 
 
-def create_memory_csv_file(data) -> TextIO:
+def create_memory_csv_file(data: Iterable[Iterable[Any]]) -> TextIO:
     memory_csv_file = io.StringIO()
     writer = csv.writer(memory_csv_file, delimiter=";", lineterminator="\n")
     writer.writerows(data)

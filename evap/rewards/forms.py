@@ -1,14 +1,19 @@
+from collections.abc import Generator
 from contextlib import contextmanager
-from datetime import date
+from datetime import date, datetime
+from typing import Any, cast
 
 from django import forms
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.db.models import Sum
 from django.utils.translation import gettext as _
 
 from evap.evaluation.models import UserProfile
 from evap.rewards.models import RewardPointRedemption, RewardPointRedemptionEvent
 from evap.rewards.tools import reward_points_of_user
+from evap.tools import assert_not_none
 
 
 class RewardPointRedemptionEventForm(forms.ModelForm):
@@ -39,7 +44,7 @@ class RewardPointRedemptionForm(forms.Form):
             help_text=help_text,
         )
 
-    def clean_event(self):
+    def clean_event(self) -> RewardPointRedemptionEvent:
         event = self.cleaned_data["event"]
         if event.redeem_end_date < date.today():
             raise ValidationError(_("Sorry, the deadline for this event expired already."))
@@ -52,16 +57,16 @@ class BaseRewardPointRedemptionFormSet(forms.BaseFormSet):
         self.user = user
         self.locked = False
 
-    def get_form_kwargs(self, index):
+    def get_form_kwargs(self, index: int | None) -> dict[str, Any]:
         kwargs = super().get_form_kwargs(index)
         if not self.initial:
             return kwargs
-        kwargs["initial"] = self.initial[index]
+        kwargs["initial"] = self.initial[assert_not_none(index)]
         kwargs["initial"]["total_points_available"] = reward_points_of_user(self.user)
         return kwargs
 
     @contextmanager
-    def lock(self):
+    def lock(self) -> Generator:
         with transaction.atomic():
             # lock these rows to prevent race conditions
             list(self.user.reward_point_grantings.select_for_update())
@@ -73,7 +78,7 @@ class BaseRewardPointRedemptionFormSet(forms.BaseFormSet):
             finally:
                 self.locked = False
 
-    def clean(self):
+    def clean(self) -> None:
         assert self.locked
 
         if any(self.errors):
@@ -81,6 +86,12 @@ class BaseRewardPointRedemptionFormSet(forms.BaseFormSet):
 
         total_points_available = reward_points_of_user(self.user)
         total_points_redeemed = sum(form.cleaned_data["points"] for form in self.forms)
+        points_redeemed_this_year = (
+            RewardPointRedemption.objects.filter(
+                user_profile=self.user, redemption_time__year=datetime.now().year
+            ).aggregate(Sum("value"))["value__sum"]
+            or 0
+        )
         assert all(form.cleaned_data["points"] >= 0 for form in self.forms)
 
         if total_points_redeemed <= 0:
@@ -88,6 +99,13 @@ class BaseRewardPointRedemptionFormSet(forms.BaseFormSet):
 
         if total_points_redeemed > total_points_available:
             raise ValidationError(_("You don't have enough reward points."))
+
+        if points_redeemed_this_year + total_points_redeemed > settings.MAX_REDEEMED_POINTS_PER_YEAR:
+            raise ValidationError(
+                _("You can redeem a maximum of {points} points per year.").format(
+                    points=settings.MAX_REDEEMED_POINTS_PER_YEAR
+                )
+            )
 
     def save(self) -> list[RewardPointRedemption]:
         assert self.locked
@@ -104,6 +122,7 @@ class BaseRewardPointRedemptionFormSet(forms.BaseFormSet):
         return created
 
 
-RewardPointRedemptionFormSet = forms.formset_factory(
-    RewardPointRedemptionForm, formset=BaseRewardPointRedemptionFormSet, extra=0
+RewardPointRedemptionFormSet = cast(
+    "type[BaseRewardPointRedemptionFormSet]",
+    forms.formset_factory(RewardPointRedemptionForm, formset=BaseRewardPointRedemptionFormSet, extra=0),
 )

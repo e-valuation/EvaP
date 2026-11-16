@@ -89,6 +89,7 @@ class TestAnonymizeCommand(TestCase):
             course=cls.course,
             name_de="Wie man Software testet",
             name_en="Testing your software",
+            staff_notes="Keep an eye on this one!",
         )
         baker.make(
             Evaluation,
@@ -180,6 +181,12 @@ class TestAnonymizeCommand(TestCase):
         with self.assertRaises(AssertionError):
             management.call_command("anonymize", stdout=StringIO())
 
+    def test_staff_notes_are_anonymized(self):
+        management.call_command("anonymize", stdout=StringIO())
+        self.assertEqual(
+            Evaluation.objects.get(id=self.evaluation.id).staff_notes, "Lorem ipsum dolor sit amet, consetetur"
+        )
+
 
 class TestRefreshResultsCacheCommand(TestCase):
     def test_calls_cache_results(self):
@@ -253,7 +260,7 @@ class TestTsCommand(TestCase):
         management.call_command("ts", "compile", "--watch", stdout=StringIO())
 
         mock_subprocess_run.assert_called_once_with(
-            ["npx", "tsc", "--project", self.ts_path / "tsconfig.compile.json", "--watch"],
+            ["npx", "tsc", "--project", self.ts_path / "tsconfig.compile.json", "--watch", "--preserveWatchOutput"],
             check=False,
         )
 
@@ -290,7 +297,7 @@ class TestUpdateEvaluationStatesCommand(TestCase):
         self.assertEqual(mock.call_count, 1)
 
 
-@override_settings(REMIND_X_DAYS_AHEAD_OF_END_DATE=[0, 2])
+@override_settings(REMIND_X_DAYS_AHEAD_OF_END_DATE=[0, 2], TEXTANSWER_REVIEW_REMINDER_WEEKDAYS=[])
 class TestSendRemindersCommand(TestCase):
     def test_remind_user_about_one_evaluation(self):
         user_to_remind = baker.make(UserProfile)
@@ -400,6 +407,7 @@ class TestSendRemindersCommand(TestCase):
         baker.make(
             TextAnswer,
             contribution=evaluation.general_contribution,
+            assignment__counts_for_grade=False,
         )
 
         with patch("evap.evaluation.models.EmailTemplate.send_to_user") as mock:
@@ -451,6 +459,7 @@ class TestSendRemindersCommand(TestCase):
             wait_for_grade_upload_before_publishing=True,
             _fill_optional=["name_de", "name_en"],
             _quantity=4,
+            _bulk_create=True,
         )
 
         with patch("evap.evaluation.models.EmailTemplate.send_to_address") as send_mock:
@@ -500,7 +509,7 @@ class TestLintCommand(TestCase):
         management.call_command("lint", stdout=StringIO())
         self.assertEqual(mock_subprocess_run.call_count, 3)
         mock_subprocess_run.assert_any_call(["ruff", "check", "."], check=False)
-        mock_subprocess_run.assert_any_call(["pylint", "evap", "tools"], check=False)
+        mock_subprocess_run.assert_any_call(["pylint"], check=False)
         mock_subprocess_run.assert_any_call(["npx", "eslint", "--quiet"], cwd="evap/static/ts", check=False)
 
 
@@ -508,7 +517,7 @@ class TestFormatCommand(TestCase):
     @patch("subprocess.run", return_value=FakeSubprocessRunResult())
     def test_formatters_called(self, mock_subprocess_run):
         management.call_command("format", stdout=StringIO())
-        self.assertEqual(len(mock_subprocess_run.mock_calls), 3)
+        self.assertEqual(len(mock_subprocess_run.mock_calls), 4)
         mock_subprocess_run.assert_has_calls(
             [
                 call(["ruff", "format", "."], check=False),
@@ -517,6 +526,7 @@ class TestFormatCommand(TestCase):
                     ["npx", "prettier", "--write", "evap/static/ts/**/*.ts", "evap/static/ts/eslint.config.js"],
                     check=False,
                 ),
+                call(["djangofmt", "."], check=False),
             ]
         )
 
@@ -535,7 +545,7 @@ class TestPrecommitCommand(TestCase):
     def test_subcommands_called(self, mock_call_command, mock_subprocess_run):
         management.call_command("precommit", stdout=StringIO())
 
-        mock_subprocess_run.assert_called_with(["./manage.py", "test"], check=False)
+        mock_subprocess_run.assert_called_with(["./manage.py", "test", "--parallel"], check=False)
 
         self.assertEqual(mock_call_command.call_count, 3)
         mock_call_command.assert_any_call("typecheck")
@@ -557,6 +567,7 @@ class TestSendTextanswerRemindersCommand(TestCase):
             TextAnswer,
             contribution=evaluation.general_contribution,
             review_decision=TextAnswer.ReviewDecision.UNDECIDED,
+            assignment__counts_for_grade=False,
         )
 
         management.call_command("send_reminders", stdout=StringIO())

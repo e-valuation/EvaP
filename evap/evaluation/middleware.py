@@ -1,4 +1,7 @@
 import uuid
+from collections.abc import Callable
+
+from django.http import HttpRequest, HttpResponseBase
 
 from evap.evaluation.models_logging import LoggedModel
 
@@ -12,10 +15,10 @@ class LoggingRequestMiddleware:
     Taken from https://github.com/treyhunner/django-simple-history/
     """
 
-    def __init__(self, get_response):
+    def __init__(self, get_response: Callable[[HttpRequest], HttpResponseBase]) -> None:
         self.get_response = get_response
 
-    def __call__(self, request):
+    def __call__(self, request: HttpRequest) -> HttpResponseBase:
         LoggedModel.thread.request = request
         LoggedModel.thread.request_id = str(uuid.uuid4())
 

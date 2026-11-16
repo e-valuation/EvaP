@@ -5,13 +5,15 @@ from django.core import management
 from django.core.exceptions import SuspiciousOperation
 from django.db import transaction
 from django.db.models import Model, prefetch_related_objects
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.utils import translation
 from model_bakery import baker
 
+import evap.evaluation.views
+from evap.development.middleware import InvalidHtmlError
 from evap.evaluation.management.commands.tools import subprocess_run_or_exit
 from evap.evaluation.models import Contribution, Course, Evaluation, TextAnswer, UserProfile
-from evap.evaluation.tests.tools import SimpleTestCase, TestCase, WebTest
+from evap.evaluation.tests.tools import SimpleTestCase, TestCase, WebTest, assert_no_database_modifications
 from evap.evaluation.tools import (
     discard_cached_related_objects,
     get_object_from_dict_pk_entry_or_logged_40x,
@@ -38,6 +40,21 @@ class TestLanguageMiddleware(WebTest):
         user.refresh_from_db()
         self.assertEqual(user.language, "de")
         self.assertEqual(translation.get_language(), "de")
+
+
+class TestNuValidatorMiddleware(WebTest):
+    @patch.object(
+        evap.evaluation.views,
+        "render",
+        return_value=HttpResponse(
+            content="<!DOCTYPE html><html><head><meta charset='utf-8'><title>Test</title></head><body><div></body></html>",
+            content_type="text/html",
+        ),
+    )
+    def test_rejects_invalid_html(self, _mock) -> None:
+        with self.assertRaises(InvalidHtmlError) as cm:
+            self.app.get("/")
+        self.assertIn("Unclosed element “div”", str(cm.exception))
 
 
 class SaboteurError(Exception):
@@ -137,7 +154,7 @@ class TestHelperMethods(TestCase):
 
     def test_discard_cached_related_objects_discards_cached_m2m_instances(self):
         evaluation = baker.make(Evaluation)
-        baker.make(UserProfile, evaluations_participating_in=[evaluation], _quantity=2)
+        baker.make(UserProfile, evaluations_participating_in=[evaluation], _quantity=2, _bulk_create=True)
 
         # M2M fields are not implicitly cached
         with self.assertNumQueries(1):
@@ -163,7 +180,7 @@ class TestHelperMethods(TestCase):
 
     def test_discard_cached_related_objects_discards_cached_m2m_reverse_instances(self):
         user = baker.make(UserProfile)
-        baker.make(Evaluation, participants=[user], _quantity=2)
+        baker.make(Evaluation, participants=[user], _quantity=2, _bulk_create=True)
 
         # Reverse M2M fields are not implicitly cached
         with self.assertNumQueries(1):
@@ -223,7 +240,7 @@ class TestHelperMethods(TestCase):
         with self.assertRaises(Http404):
             get_object_from_dict_pk_entry_or_logged_40x(TextAnswer, {"pk": UUID(int=0)}, "pk")
 
-        answer = baker.make(TextAnswer)
+        answer = baker.make(TextAnswer, assignment__counts_for_grade=False)
         self.assertEqual(get_object_from_dict_pk_entry_or_logged_40x(TextAnswer, {"pk": str(answer.pk)}, "pk"), answer)
 
     def test_subprocess_run_or_exit(self) -> None:
@@ -231,6 +248,15 @@ class TestHelperMethods(TestCase):
 
         with self.assertRaises(SystemExit):
             subprocess_run_or_exit(["false"])
+
+    def test_assert_no_database_modifications(self):
+        with self.assertRaises(AssertionError) as context_manager:
+            with assert_no_database_modifications():
+                baker.make(UserProfile)
+
+        self.assertIn(
+            'Unexpected modifying query found: INSERT INTO "evaluation_userprofile"', str(context_manager.exception)
+        )
 
 
 class TestHelperMethodsWithoutTransaction(SimpleTestCase):

@@ -8,10 +8,10 @@ urlpatterns = [
     path("", views.index, name="index"),
     path("faq", views.faq, name="faq"),
     path("set_lang", views.set_lang, name="set_lang"),
-    path("legal_notice", views.LegalNoticeView.as_view(), name="legal_notice"),
     path("contact", views.contact, name="contact"),
     path("key/<int:key>", views.login_key_authentication, name="login_key_authentication"),
     path("profile", views.profile_edit, name="profile_edit"),
     path("set_notes", views.set_notes, name="set_notes"),
     path("set_startpage", views.set_startpage, name="set_startpage"),
+    path("demo/questiontypes", views.questiontypes_demo, name="questiontypes_demo"),
 ]

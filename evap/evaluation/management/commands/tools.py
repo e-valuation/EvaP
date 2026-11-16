@@ -8,7 +8,7 @@ from django.core.management import call_command
 logger = logging.getLogger(__name__)
 
 
-def confirm_harmful_operation(output):
+def confirm_harmful_operation(output) -> bool:
     """Usage: Abort if it does not return true"""
 
     if input("Are you sure you want to continue? (yes/no) ") != "yes":

@@ -190,12 +190,13 @@ class TestResultsView(WebTest):
             participants=participants,
             voters=participants,
             _quantity=3,
+            _bulk_create=True,
             _fill_optional=["name_de"],
         )[1:]
 
         questionnaire = baker.make(Questionnaire)
 
-        contributions = [e.general_contribution for e in published]
+        contributions = [e.ensure_general_contribution() for e in published]
         for contribution in contributions:
             contribution.questionnaires.add(questionnaire)
         baker.make(
@@ -206,6 +207,7 @@ class TestResultsView(WebTest):
             answer=2,
             count=2,
             _quantity=len(published),
+            _bulk_create=True,
         )
 
         for evaluation in published:
@@ -360,7 +362,11 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         bottom_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.BOTTOM)
 
         top_heading_assignment = baker.make(
-            QuestionAssignment, question__type=QuestionType.HEADING, questionnaire=top_questionnaire, order=0
+            QuestionAssignment,
+            question__type=QuestionType.HEADING,
+            questionnaire=top_questionnaire,
+            order=0,
+            counts_for_grade=False,
         )
         top_likert_assignment = baker.make(
             QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT, questionnaire=top_questionnaire, order=1
@@ -371,7 +377,11 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         )
 
         bottom_heading_assignment = baker.make(
-            QuestionAssignment, question__type=QuestionType.HEADING, questionnaire=bottom_questionnaire, order=0
+            QuestionAssignment,
+            question__type=QuestionType.HEADING,
+            questionnaire=bottom_questionnaire,
+            order=0,
+            counts_for_grade=False,
         )
         bottom_likert_assignment = baker.make(
             QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT, questionnaire=bottom_questionnaire, order=1
@@ -403,16 +413,28 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         questionnaire = baker.make(Questionnaire)
 
         heading_assignment_0 = baker.make(
-            QuestionAssignment, question__type=QuestionType.HEADING, questionnaire=questionnaire, order=0
+            QuestionAssignment,
+            question__type=QuestionType.HEADING,
+            questionnaire=questionnaire,
+            order=0,
+            counts_for_grade=False,
         )
         heading_assignment_1 = baker.make(
-            QuestionAssignment, question__type=QuestionType.HEADING, questionnaire=questionnaire, order=1
+            QuestionAssignment,
+            question__type=QuestionType.HEADING,
+            questionnaire=questionnaire,
+            order=1,
+            counts_for_grade=False,
         )
         likert_assignment = baker.make(
             QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT, questionnaire=questionnaire, order=2
         )
         heading_assignment_2 = baker.make(
-            QuestionAssignment, question__type=QuestionType.HEADING, questionnaire=questionnaire, order=3
+            QuestionAssignment,
+            question__type=QuestionType.HEADING,
+            questionnaire=questionnaire,
+            order=3,
+            counts_for_grade=False,
         )
 
         contribution = baker.make(
@@ -541,6 +563,7 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
             question__text_en="test-dropout-question-text",
             question__type=QuestionType.POSITIVE_YES_NO,
             questionnaire=questionnaire,
+            counts_for_grade=False,
         )
         self.evaluation.general_contribution.questionnaires.add(questionnaire)
         make_rating_answer_counters(assignment, self.evaluation.general_contribution, answer_counts=[10, 5])
@@ -567,7 +590,7 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
 class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
     @classmethod
     def setUpTestData(cls):
-        make_manager()
+        cls.manager = make_manager()
         responsible = baker.make(UserProfile, email="responsible@institution.example.com")
         cls.student1 = baker.make(UserProfile, email="student1@institution.example.com")
         cls.student2 = baker.make(UserProfile, email="student2@example.com")
@@ -584,6 +607,16 @@ class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
         cls.responsible_contribution = baker.make(
             Contribution, contributor=responsible, evaluation=cls.evaluation, questionnaires=[questionnaire]
         )
+
+    def test_zero_voters(self) -> None:
+        """Regression test for #2709."""
+        self.evaluation.dropout_count = 1
+        self.evaluation.end_evaluation()
+        self.evaluation.end_review()
+        self.evaluation.publish()
+        self.evaluation.save()
+        with run_in_staff_mode(self):
+            self.app.get(self.url, user=self.manager)
 
     def helper_test_answer_visibility_one_voter(self, user_email, expect_page_not_visible=False):
         page = self.app.get(self.url, user=user_email, expect_errors=expect_page_not_visible)

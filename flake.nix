@@ -2,7 +2,7 @@
   description = "EvaP";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
     pyproject-nix = {
       url = "github:nix-community/pyproject.nix";
@@ -35,7 +35,7 @@
       devShells = forAllSystems (system:
         let
           pkgs = pkgsFor.${system};
-          dependency-groups = if pkgs.stdenv.isDarwin then [ "psycopg-c" ] else [ "psycopg-binary" ];
+          dependency-groups = if pkgs.stdenv.hostPlatform.isDarwin then [ "psycopg-c" ] else [ "psycopg-binary" ];
         in
         rec {
           evap = pkgs.callPackage ./nix/shell.nix {
@@ -50,7 +50,15 @@
             dependency-groups = (prev.dependency-groups or [ ]) ++ [ "lsp" ];
             extraPackages = (prev.extraPackages or [ ]) ++ [ pkgs.typescript-language-server ];
           });
-          evap-frontend-dev = evap-dev.overrideAttrs (prev: { nativeBuildInputs = (prev.nativeBuildInputs or [ ]) ++ (with pkgs; [ firefox geckodriver ]); });
+          evap-frontend-dev = evap-dev.overrideAttrs (prev: {
+            nativeBuildInputs = (prev.nativeBuildInputs or [ ]) ++ (with pkgs; [ firefox geckodriver ]);
+            # point Selenium to the Nix firefox instead of a system-wide installation
+            env = lib.mergeAttrs (prev.env or { }) {
+              SE_BROWSER_PATH = if pkgs.stdenv.hostPlatform.isDarwin
+                then "${pkgs.firefox}/Applications/Firefox.app/Contents/MacOS/firefox"
+                else lib.getExe pkgs.firefox;
+            };
+          });
           default = evap-dev;
 
           impure = pkgs.mkShell {
@@ -75,21 +83,20 @@
           pkgs = pkgsFor.${system};
           pc-modules = import ./nix/services.nix {
             inherit pkgs;
-            inherit (self.devShells.${system}.evap.passthru) venv;
+            inherit (self.devShells.${system}.evap-dev.passthru) venv;
           };
-          make-process-compose = with-devenv-setup: (import inputs.process-compose-flake.lib { inherit pkgs; }).makeProcessCompose {
-            modules = [
-              inputs.services-flake.processComposeModules.default
-              pc-modules.databases
-              (lib.mkIf with-devenv-setup pc-modules.devenv-setup)
-            ];
+          make-process-compose = mods: (import inputs.process-compose-flake.lib { inherit pkgs; }).makeProcessCompose {
+            modules = [ inputs.services-flake.processComposeModules.default ] ++ mods;
           };
         in
         rec {
           python3 = pkgs.python313;
 
-          services = make-process-compose false;
-          services-full = make-process-compose true;
+          services = make-process-compose (with pc-modules; [ databases ]);
+          services-full = make-process-compose (with pc-modules; [ databases devenv-setup ]);
+          services-fuller = make-process-compose (with pc-modules; [ databases devenv-setup devenv vnu ]);
+          services-ci = make-process-compose (with pc-modules; [ databases vnu ]);
+          default = services-fuller;
 
           wait-for-pc = pkgs.writeShellApplication {
             name = "wait-for-pc";

@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Any
 
 from django.contrib.staticfiles.storage import ManifestStaticFilesStorage
+from django.http import HttpRequest
 
 from evap.tools import MonthAndDay
 
@@ -33,6 +34,9 @@ DEBUG = True
 # Works only with DEBUG = True and Django's development server (so no apache).
 ENABLE_DEBUG_TOOLBAR = False
 
+# Validate generated HTML using Nu Html Checker
+VNU_URL: str | None = None
+
 ### EvaP logic
 
 LOGIN_KEY_VALIDITY = 210  # days, so roughly 7 months
@@ -46,6 +50,9 @@ PARTICIPATION_DELETION_AFTER_INACTIVE_TIME = timedelta(days=18 * 30)
 # or the number of answers is less than RESULTS_WARNING_PERCENTAGE times the median number of answers (for this question in this evaluation)
 RESULTS_WARNING_COUNT = 4
 RESULTS_WARNING_PERCENTAGE = 0.5
+
+# maximum selectable participant count for the results page filter; selecting this value means "this many or more"
+RESULTS_PARTICIPANT_FILTER_MAX_VALUE = 80
 
 ## percentages for calculating an evaluation's total average grade
 # grade questions are weighted this much for each contributor's average grade
@@ -65,10 +72,28 @@ MAIN_EVALUATION_DEFAULT_WEIGHT = 9
 
 # number of reward points a student should have for a semester after evaluating the given fraction of evaluations.
 REWARD_POINTS = [
-    (1 / 3, 1),
-    (2 / 3, 2),
-    (3 / 3, 3),
+    (10 / 100, 1),
+    (30 / 100, 2),
+    (50 / 100, 3),
+    (55 / 100, 4),
+    (60 / 100, 5),
+    (65 / 100, 6),
+    (70 / 100, 7),
+    (75 / 100, 8),
+    (80 / 100, 9),
+    (90 / 100, 10),
 ]
+MAX_REDEEMED_POINTS_PER_YEAR = 50
+
+# number of reward points required per status, status name, status reward, two colors for gradient
+STATUS_POINTS: list[tuple[int, dict[str, str], dict[str, str], str, str]] = [
+    (0, {"de": "Blau", "en": "Blue"}, {"de": "", "en": ""}, "#31708f", "#31708f"),
+    (10, {"de": "Grün", "en": "Green"}, {"de": "Sticker", "en": "Sticker"}, "#88bf4a", "#88bf4a"),
+    (25, {"de": "Bronze", "en": "Bronze"}, {"de": "Beutel", "en": "Bag"}, "#e1c096", "#ad8047"),
+    (35, {"de": "Silber", "en": "Silver"}, {"de": "Tasse", "en": "Mug"}, "#dbe4ee", "#b3c1c9"),
+    (50, {"de": "Gold", "en": "Gold"}, {"de": "T-Shirt", "en": "T-shirt"}, "#fdf68c", "#f4cd2a"),
+]
+STATUS_POINTS_EXCLUDED_SEMESTERS: list[int] = []  # ids of semesters to exclude for status progress
 
 # days before end date to send reminder
 REMIND_X_DAYS_AHEAD_OF_END_DATE = [2, 0]
@@ -189,7 +214,7 @@ STORAGES = {
 
 CONTACT_EMAIL = "webmaster@localhost"
 ALLOW_ANONYMOUS_FEEDBACK_MESSAGES = True
-LEGAL_NOTICE_TEXT = "Objection! (this is a default setting that the administrators should change, please contact them)"
+LEGAL_NOTICE_LINK = "https://example.com/legalnotice"
 
 # Config for mail system
 DEFAULT_FROM_EMAIL = "webmaster@localhost"
@@ -381,6 +406,7 @@ STATIC_URL = "/static/"
 # Additional locations of static files
 STATICFILES_DIRS = [
     MODULE / "static",
+    ("images", MODULE / "static_images"),
 ]
 
 # Absolute path to the directory static files should be collected to.
@@ -392,20 +418,12 @@ STATIC_ROOT = DATADIR / "static_collected"
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 MEDIA_ROOT = DATADIR / "upload"
 
-### Evaluation progress rewards
-GLOBAL_EVALUATION_PROGRESS_REWARDS: list[
+### Global evaluation progress
+GLOBAL_EVALUATION_PROGRESS: list[
     tuple[Fraction, dict[str, str]]
-] = []  # (required_voter_ratio between 0 and 1, reward_text)
+] = []  # (required_voter_ratio between 0 and 1, step_texts)
 GLOBAL_EVALUATION_PROGRESS_EXCLUDED_COURSE_TYPE_IDS: list[int] = []
 GLOBAL_EVALUATION_PROGRESS_EXCLUDED_EVALUATION_IDS: list[int] = []
-GLOBAL_EVALUATION_PROGRESS_CAMPAIGN: dict[str, str] = {
-    "title_de": "",
-    "title_en": "",
-    "info_title_de": "",
-    "info_title_en": "",
-    "info_text_de": "",
-    "info_text_en": "",
-}
 
 ### Slogans
 SLOGANS_DE = [
@@ -435,7 +453,7 @@ SLOGANS_EN = [
 
 
 ### Allowed chosen first names / display names
-def CHARACTER_ALLOWED_IN_NAME(character):  # pylint: disable=invalid-name
+def CHARACTER_ALLOWED_IN_NAME(character: str) -> bool:  # pylint: disable=invalid-name
     return any(
         (
             ord(character) in range(32, 127),  # printable ASCII / Basic Latin characters
@@ -478,7 +496,7 @@ try:
     # localsettings file may or may not exist (for example in CI)
 
     # the import can overwrite locals with a slightly different type (e.g. DATABASES), which is fine.
-    from evap.localsettings import *  # type: ignore  # noqa: F403,PGH003
+    from evap.localsettings import *  # noqa: F403,PGH003
 except ImportError:
     pass
 
@@ -531,10 +549,13 @@ if DEBUG:
         INSTALLED_APPS += ["debug_toolbar"]
         MIDDLEWARE = ["debug_toolbar.middleware.DebugToolbarMiddleware"] + MIDDLEWARE
 
-        def show_toolbar(request):
+        def show_toolbar(request: HttpRequest) -> bool:
             return True
 
         DEBUG_TOOLBAR_CONFIG = {
             "SHOW_TOOLBAR_CALLBACK": "evap.settings.show_toolbar",
             "JQUERY_URL": "",
         }
+
+if VNU_URL is not None:
+    MIDDLEWARE += ["evap.development.middleware.NuValidatorMiddleware"]
