@@ -42,8 +42,6 @@ input:checked + label.btn-light.for-above {
 
 @include color-mode(dark) {
     .btn-light, .btn-textanswer {
-        background-color: $body-bg-dark;
-        border: $darker-gray 1px solid;
         color: $light-gray;
         >.fa-comment {
             color: $light-gray;
@@ -295,17 +293,17 @@ a.collapse-toggle {
 @include color-mode(dark) {
     @each $name, $color in $vote-colors {
         .btn.vote-btn-#{$name} {
-            background-color: tint-color($background-dark, 10%);
-            color: shade-color($color, 10%);
+            background-color: tint-color($background-dark, 3%) !important;
+            color: $color;
 
             &:hover {
                 background-color: shade-color($color, 60%) !important;
-                color: shade-color($color, 20%);
+                color: tint-color($color, 20%);
             }
         }
 
         .btn-check:checked + .vote-btn-#{$name} {
-            background-color: shade-color($color, 20%) !important;
+            background-color: shade-color($color, 10%) !important;
             color: shade-color($color, 80%);
 
             &:hover {
@@ -413,11 +411,11 @@ td .btn {
         }
     }
     .btn-success {
-        background-color: shade-color($success, 50%) !important;
-        border-color: shade-color($success, 40%) !important;
-        color: $light-gray;
+        background-color: shade-color($success, 10%) !important;
+        border-color: shade-color($success, 0%) !important;
+        color: $black;
         &:hover {
-            background-color: shade-color($success, 20%) !important;
+            background-color: shade-color($success, 0%) !important;
         }
     }
     .btn-warning {
@@ -429,7 +427,7 @@ td .btn {
         }
     }
     .btn-light {
-        background-color: $dark !important;
+        background-color: tint-color($background-dark, 10%) !important;
         border-color: $dark !important;
         &:hover {
             background-color: tint-color($dark, 20%) !important;
