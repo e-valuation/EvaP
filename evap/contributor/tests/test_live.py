@@ -3,6 +3,7 @@ from datetime import date, datetime
 from model_bakery import baker
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.expected_conditions import visibility_of
+import time
 
 from evap.evaluation.models import Contribution, Course, Evaluation, Program, UserProfile
 from evap.evaluation.tests.tools import LiveServerTest, get_open_modals
@@ -35,7 +36,7 @@ class ContributorDelegationLiveTest(LiveServerTest):
 
         # Wait for the modal to fully open, so we can click the input that is slotted into the modal
         # (the input is in a slot outside the shadow-dom and exists always, and is always invisible for selenium)
-        (modal,) = get_open_modals(self.selenium, *(By.CSS_SELECTOR, "confirmation-modal.delegate-preparation-modal"))
+        (modal,) = get_open_modals(self.selenium, *(By.CSS_SELECTOR, "confirmation-modal#delegate-preparation-modal"))
         confirm_button = modal.shadow_root.find_element(By.CSS_SELECTOR, "button[data-event-type='confirm']")
         self.wait.until(visibility_of(confirm_button))
 
