@@ -79,12 +79,7 @@ class TestQuestionTypes(WebTestWith200Check):
 
     @classmethod
     def setUpTestData(cls):
-        # View is only visible to users participating in at least one evaluation.
-        cls.user = baker.make(UserProfile, email="student@institution.example.com")
-        cls.semester = baker.make(Semester, is_active=True)
-        cls.evaluation = baker.make(Evaluation, course__semester=cls.semester, participants=[cls.user])
-
-        cls.test_users = [cls.user]
+        cls.test_users = [baker.make(UserProfile, email="student@institution.example.com")]
 
 
 class TestStartpage(WebTest):
