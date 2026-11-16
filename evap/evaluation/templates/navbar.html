@@ -258,40 +258,47 @@
                     </div>
                 </li>
             {% endif %}
-            <li class="nav-item dropdown" data-bs-toggle="dropdown">
-                <a
+            <li
+                class="nav-item dropdown"
+                data-bs-toggle="tooltip"
+                data-bs-placement="left"
+                title="{% translate 'Color mode' %}"
+            >
+                <button
+                    type="button"
+                    id="navBarColorModeDropdownMenuLink"
                     class="nav-link dropdown-toggle"
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="left"
-                    title="{% translate 'Color mode' %}"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    aria-label="{% translate 'Color mode' %}"
                 >
                     <span class="fas fa-circle-half-stroke"></span>
-                </a>
+                </button>
                 <div
                     class="dropdown-menu dropdown-menu-end dropdown-menu-tight"
                     aria-labelledby="navBarColorModeDropdownMenuLink"
                 >
-                    <button type="button" class="dropdown-item" data-bs-theme-value="light" aria-pressed="false">
+                    <label class="dropdown-item">
+                        <input type="radio" class="form-check-input me-2" name="theme" value="light" />
                         {% translate 'Light' %}
-                    </button>
-                    <button type="button" class="dropdown-item" data-bs-theme-value="dark" aria-pressed="false">
+                    </label>
+                    <label class="dropdown-item">
+                        <input type="radio" class="form-check-input me-2" name="theme" value="dark" />
                         {% translate 'Dark' %}
-                    </button>
-                    <button type="button" class="dropdown-item" data-bs-theme-value="auto" aria-pressed="false">
+                    </label>
+                    <label class="dropdown-item">
+                        <input type="radio" class="form-check-input me-2" name="theme" value="auto" />
                         {% translate 'Auto' %}
-                    </button>
+                    </label>
                     <div class="dropdown-divider"></div>
-                    <button type="button" class="dropdown-item" data-evap-colors-value="default" aria-pressed="false">
+                    <label class="dropdown-item">
+                        <input type="radio" class="form-check-input me-2" name="evap-colors" value="default" />
                         {% translate 'Default colors' %}
-                    </button>
-                    <button
-                        type="button"
-                        class="dropdown-item"
-                        data-evap-colors-value="alternative"
-                        aria-pressed="false"
-                    >
+                    </label>
+                    <label class="dropdown-item">
+                        <input type="radio" class="form-check-input me-2" name="evap-colors" value="alternative" />
                         {% translate 'Alternative colors' %}
-                    </button>
+                    </label>
                 </div>
             </li>
             {% if user.is_authenticated %}
