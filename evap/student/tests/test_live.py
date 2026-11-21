@@ -7,6 +7,7 @@ from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.expected_conditions import (
     invisibility_of_element,
     presence_of_element_located,
+    visibility_of,
     visibility_of_element_located,
 )
 
@@ -160,8 +161,7 @@ class StudentVoteLiveTest(LiveServerTest):
         with self.wait_until_page_reloads():
             self.selenium.find_element(By.ID, "vote-submit-btn").click()
 
-        # wait for all javascript to fully execute, so our click handlers are registered
-        self.wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
+        self.wait_until_document_ready()
 
         row = self.selenium.find_element(By.CSS_SELECTOR, "#student-vote-form .row:has(.btn-check)")
         error_marked = row.find_elements(By.CSS_SELECTOR, ".choice-error")
@@ -242,6 +242,7 @@ class StudentVoteLiveTest(LiveServerTest):
         (modal,) = get_open_modals(self.selenium, *self.SKIP_CONTRIBUTOR_SELECTORS)
 
         confirm_button = modal.shadow_root.find_element(By.CSS_SELECTOR, "button[data-event-type='confirm']")
+        self.wait.until(visibility_of(confirm_button))
         confirm_button.click()
         self.wait.until(invisibility_of_element(modal))
         self.wait.until(lambda __: textarea.get_attribute("value") == "")
