@@ -1394,6 +1394,10 @@ class Question(models.Model):
     def can_have_textanswers(self) -> bool:
         return self.is_text_question or self.is_rating_question and self.allows_additional_textanswers
 
+    @property
+    def is_used_by_active_questionnaire(self):
+        return any(not q.can_be_edited_by_manager for q in self.questionnaires.all())
+
 
 class QuestionAssignment(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="assignments")
