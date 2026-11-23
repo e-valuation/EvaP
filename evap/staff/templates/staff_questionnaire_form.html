@@ -56,6 +56,13 @@
                                         {% include 'bootstrap_form_field_widget.html' with field=form_element.question_form.text_de %}
                                         {% include 'bootstrap_form_errors.html' with errors=form_element.non_field_errors %}
                                         {% include 'bootstrap_form_errors.html' with errors=form_element.question_form.non_field_errors %}
+                                        {# TODO(EVAP-457): temporary debug output #}
+                                        {% if form_element.instance.pk %}
+                                            <div class="form-text">
+                                                is_used_by_active_questionnaire:
+                                                <code>{{ form_element.question_form.instance.is_used_by_active_questionnaire }}</code>
+                                            </div>
+                                        {% endif %}
                                     </td>
                                     <td>
                                         {% include 'bootstrap_form_field_widget.html' with field=form_element.question_form.text_en %}
