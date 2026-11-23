@@ -108,6 +108,7 @@ class EvapBaker(baker.Baker):
         for question_type, _label in Question._meta.get_field("type").flatchoices
         if question_type not in [QuestionType.TEXT, QuestionType.HEADING]
     ]
+    explicit_attrs: set[str]
 
     def _make(self, *args: Any, **attrs: Any) -> Any:
         # attrs only holds what the caller passed here; in instance() it also holds values baker generated
