@@ -934,8 +934,8 @@ class QuestionForm(forms.ModelForm):
 
     def clean(self):
         super().clean()
-        if self.cleaned_data.get("type") in [QuestionType.TEXT, QuestionType.HEADING]:
-            self.cleaned_data["allows_additional_textanswers"] = False
+        if self.cleaned_data.get("allows_additional_textanswers") and self.cleaned_data.get("type") in [QuestionType.TEXT, QuestionType.HEADING]:
+            raise ValidationError(_("Text and heading questions cannot allow additional text answers."))
         return self.cleaned_data
 
     def save(self, *args, **kwargs) -> Question:
