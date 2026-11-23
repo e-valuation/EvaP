@@ -10,6 +10,7 @@
             {% else %}
             d-lg-none
             {% endif %}
+            p-1
         "
         href="{% url 'evaluation:index' %}"
     >
@@ -33,6 +34,7 @@
                 {% if user.is_participant and user.is_responsible_or_contributor_or_delegate or user.is_reviewer %}d-xl-block{% else %}d-lg-block{% endif %}
                 navbar-nav
                 justify-content-start
+                p-1
             "
         >
             <a href="{% url 'evaluation:index' %}">
