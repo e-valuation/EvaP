@@ -549,7 +549,7 @@ class TestCalculateAverageDistribution(TestCase):
         distribution_with_dropout = calculate_average_distribution(self.evaluation)
         self.assertEqual(distribution_without_dropout, distribution_with_dropout)
 
-        # QuestionAssignment.save() coerces counts_for_grade to False for dropout questionnaires
+        # bypass QuestionAssignment.save(), which rejects counts_for_grade=True in dropout questionnaires
         QuestionAssignment.objects.filter(pk=dropout_assignment.pk).update(counts_for_grade=True)
         cache_results(self.evaluation)
 

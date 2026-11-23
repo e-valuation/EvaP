@@ -3568,8 +3568,7 @@ class TestQuestionnaireUsageView(WebTestStaffModeWith200Check):
         cls.user = make_manager()
 
         cls.questionnaire = baker.make(Questionnaire)
-        cls.question = baker.make(Question)
-        cls.questionnaire.questions.add(cls.question)
+        baker.make(QuestionAssignment, questionnaire=cls.questionnaire)
         cls.url = reverse("staff:questionnaire_usage", args=[cls.questionnaire.pk])
 
         cls.semesters = baker.make(
