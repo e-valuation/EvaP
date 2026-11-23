@@ -1180,8 +1180,23 @@ class QuestionFormTests(TestCase):
                 form_data = get_form_data_from_instance(QuestionAssignmentForm, assignment)
                 form_data.update(get_form_data_from_instance(QuestionForm, assignment.question))
                 form_data["type"] = question_type
+                form_data["allows_additional_textanswers"] = False
                 form_data["counts_for_grade"] = True
 
                 form = QuestionAssignmentForm(form_data, instance=assignment)
                 self.assertFalse(form.is_valid())
                 self.assertIn("Text and heading questions cannot count toward the grade.", form.non_field_errors())
+
+    def test_clean_rejects_text_and_heading_questions_with_additional_textanswers(self):
+        for question_type in [QuestionType.TEXT, QuestionType.HEADING]:
+            with self.subTest(question_type=question_type):
+                question = baker.make(Question, type=QuestionType.POSITIVE_LIKERT)
+                form_data = get_form_data_from_instance(QuestionForm, question)
+                form_data["type"] = question_type
+                form_data["allows_additional_textanswers"] = True
+
+                form = QuestionForm(form_data, instance=question)
+                self.assertFalse(form.is_valid())
+                self.assertIn(
+                    "Text and heading questions cannot allow additional text answers.", form.non_field_errors()
+                )
