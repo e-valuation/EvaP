@@ -39,10 +39,7 @@ class EvaluationEditLiveTest(LiveServerTest):
             main_language="en",
         )
 
-        general_questionnaire = baker.make(
-            Questionnaire,
-            question_assignments=[baker.make(QuestionAssignment, question__type=QuestionType.POSITIVE_LIKERT)],
-        )
+        general_questionnaire = baker.make(Questionnaire, question_assignments=[baker.make(QuestionAssignment)])
         evaluation.general_contribution.questionnaires.set([general_questionnaire])
 
         contribution1 = baker.make(
@@ -305,7 +302,6 @@ class QuestionnaireFormLiveTest(LiveServerTest):
         baker.make(
             QuestionAssignment,
             questionnaire=questionnaire,
-            question__type=QuestionType.POSITIVE_LIKERT,
             question__allows_additional_textanswers=True,
             counts_for_grade=True,
         )
@@ -374,7 +370,6 @@ class QuestionnaireEditLiveTest(LiveServerTest):
             QuestionAssignment,
             questionnaire=self.questionnaire,
             question__text_en=(f"Q{i}" for i in range(5)),
-            question__type=QuestionType.POSITIVE_LIKERT,
             order=iter(range(5)),
             _bulk_create=True,
             _quantity=5,
@@ -451,12 +446,7 @@ class TextAnswerEditLiveTest(LiveServerTest):
         question1 = baker.make(Question, type=QuestionType.TEXT)
 
         general_questionnaire = baker.make(Questionnaire)
-        assignment = baker.make(
-            QuestionAssignment,
-            questionnaire=general_questionnaire,
-            question=question1,
-            counts_for_grade=False,
-        )
+        assignment = baker.make(QuestionAssignment, questionnaire=general_questionnaire, question=question1)
         evaluation.general_contribution.questionnaires.set([general_questionnaire])
 
         contribution1 = baker.make(

@@ -407,11 +407,7 @@ class TestSendRemindersCommand(TestCase):
             can_publish_text_results=True,
             wait_for_grade_upload_before_publishing=False,
         )
-        baker.make(
-            TextAnswer,
-            contribution=evaluation.general_contribution,
-            assignment__counts_for_grade=False,
-        )
+        baker.make(TextAnswer, contribution=evaluation.general_contribution)
 
         with patch("evap.evaluation.models.EmailTemplate.send_to_user") as mock:
             management.call_command("send_reminders", stdout=StringIO())
@@ -570,7 +566,6 @@ class TestSendTextanswerRemindersCommand(TestCase):
             TextAnswer,
             contribution=evaluation.general_contribution,
             review_decision=TextAnswer.ReviewDecision.UNDECIDED,
-            assignment__counts_for_grade=False,
         )
 
         management.call_command("send_reminders", stdout=StringIO())

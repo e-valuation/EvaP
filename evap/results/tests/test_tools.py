@@ -350,12 +350,7 @@ class TestCalculateAverageDistribution(TestCase):
             voters=[self.student1, self.student2],
         )
         questionnaire_text = baker.make(Questionnaire)
-        baker.make(
-            QuestionAssignment,
-            questionnaire=questionnaire_text,
-            question__type=QuestionType.TEXT,
-            counts_for_grade=False,
-        )
+        baker.make(QuestionAssignment, questionnaire=questionnaire_text, question__type=QuestionType.TEXT)
         baker.make(
             Contribution,
             contributor=baker.make(UserProfile),
@@ -450,10 +445,7 @@ class TestCalculateAverageDistribution(TestCase):
 
         dropout_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
         dropout_assignment = baker.make(
-            QuestionAssignment,
-            questionnaire=dropout_questionnaire,
-            question__type=QuestionType.GRADE,
-            counts_for_grade=False,
+            QuestionAssignment, questionnaire=dropout_questionnaire, question__type=QuestionType.GRADE
         )
 
         contribution = baker.make(
@@ -548,10 +540,7 @@ class TestCalculateAverageDistribution(TestCase):
 
         dropout_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.DROPOUT)
         dropout_assignment = baker.make(
-            QuestionAssignment,
-            questionnaire=dropout_questionnaire,
-            question__type=QuestionType.GRADE,
-            counts_for_grade=False,
+            QuestionAssignment, questionnaire=dropout_questionnaire, question__type=QuestionType.GRADE
         )
         self.evaluation.general_contribution.questionnaires.add(dropout_questionnaire)
         make_rating_answer_counters(dropout_assignment, self.evaluation.general_contribution, [10, 0, 0, 0, 0])
@@ -560,7 +549,7 @@ class TestCalculateAverageDistribution(TestCase):
         distribution_with_dropout = calculate_average_distribution(self.evaluation)
         self.assertEqual(distribution_without_dropout, distribution_with_dropout)
 
-        # QuestionAssignment.save() coerces counts_for_grade to False for dropout questionnaires
+        # bypass QuestionAssignment.save(), which rejects counts_for_grade=True in dropout questionnaires
         QuestionAssignment.objects.filter(pk=dropout_assignment.pk).update(counts_for_grade=True)
         cache_results(self.evaluation)
 
@@ -604,10 +593,7 @@ class TestTextAnswerVisibilityInfo(TestCase):
         )
         cls.questionnaire = baker.make(Questionnaire)
         cls.assignment = baker.make(
-            QuestionAssignment,
-            questionnaire=cls.questionnaire,
-            question__type=QuestionType.TEXT,
-            counts_for_grade=False,
+            QuestionAssignment, questionnaire=cls.questionnaire, question__type=QuestionType.TEXT
         )
         cls.assignment_likert = baker.make(
             QuestionAssignment, questionnaire=cls.questionnaire, question__type=QuestionType.POSITIVE_LIKERT

@@ -21,7 +21,7 @@ from django.test.selenium import SeleniumTestCase
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone, translation
-from model_bakery import baker
+from model_bakery import baker, random_gen
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
@@ -34,8 +34,10 @@ from evap.evaluation.models import (
     Course,
     Evaluation,
     Program,
+    Question,
     QuestionAssignment,
     Questionnaire,
+    QuestionType,
     RatingAnswerCounter,
     TextAnswer,
     UserProfile,
@@ -96,6 +98,40 @@ class ResetLanguageOnTearDownMixin:
     def tearDown(self):
         translation.activate("en")  # Django by default does not "reset" this, causing test interdependency
         super().tearDown()
+
+
+class EvapBaker(baker.Baker):
+    """Deduces defaults that are only valid depending on other fields, so that a plain baker.make() creates a valid object."""
+
+    RATING_QUESTION_TYPES = [
+        question_type
+        for question_type, _label in Question._meta.get_field("type").flatchoices
+        if question_type not in [QuestionType.TEXT, QuestionType.HEADING]
+    ]
+    explicit_attrs: set[str]
+
+    def _make(self, *args: Any, **attrs: Any) -> Any:
+        # attrs only holds what the caller passed here; in instance() it also holds values baker generated
+        self.explicit_attrs = set(attrs)
+        if (
+            self.model is QuestionAssignment
+            and attrs.get("counts_for_grade")
+            and not {"question", "question__type"} & self.explicit_attrs
+        ):
+            # the question is created before instance() runs, so its type has to be chosen here
+            attrs["question__type"] = random_gen.baker_random.choice(self.RATING_QUESTION_TYPES)
+        return super()._make(*args, **attrs)
+
+    def instance(self, attrs: dict[str, Any], *args: Any, **kwargs: Any) -> Any:
+        if self.model is Question:
+            if "allows_additional_textanswers" not in self.explicit_attrs:
+                attrs["allows_additional_textanswers"] = attrs["type"] not in [QuestionType.TEXT, QuestionType.HEADING]
+            elif attrs["allows_additional_textanswers"] and "type" not in self.explicit_attrs:
+                attrs["type"] = random_gen.baker_random.choice(self.RATING_QUESTION_TYPES)
+        if self.model is QuestionAssignment and "counts_for_grade" not in self.explicit_attrs:
+            question_can_count = attrs["question"].type not in [QuestionType.TEXT, QuestionType.HEADING]
+            attrs["counts_for_grade"] = question_can_count and not attrs["questionnaire"].is_dropout
+        return super().instance(attrs, *args, **kwargs)
 
 
 class TestCase(SeedBakerMixin, ResetLanguageOnTearDownMixin, django.test.TestCase):

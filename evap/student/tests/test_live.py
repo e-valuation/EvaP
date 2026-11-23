@@ -43,18 +43,10 @@ class StudentVoteLiveTest(LiveServerTest):
         contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
 
         baker.make(
-            QuestionAssignment,
-            questionnaire=contributor_questionnaire,
-            order=0,
-            question__type=QuestionType.HEADING,
-            counts_for_grade=False,
+            QuestionAssignment, questionnaire=contributor_questionnaire, order=0, question__type=QuestionType.HEADING
         )
         baker.make(
-            QuestionAssignment,
-            questionnaire=contributor_questionnaire,
-            order=1,
-            question__type=QuestionType.TEXT,
-            counts_for_grade=False,
+            QuestionAssignment, questionnaire=contributor_questionnaire, order=1, question__type=QuestionType.TEXT
         )
         baker.make(
             QuestionAssignment,
@@ -64,18 +56,10 @@ class StudentVoteLiveTest(LiveServerTest):
         )
 
         baker.make(
-            QuestionAssignment,
-            questionnaire=top_general_questionnaire,
-            order=0,
-            question__type=QuestionType.HEADING,
-            counts_for_grade=False,
+            QuestionAssignment, questionnaire=top_general_questionnaire, order=0, question__type=QuestionType.HEADING
         )
         baker.make(
-            QuestionAssignment,
-            questionnaire=top_general_questionnaire,
-            order=1,
-            question__type=QuestionType.TEXT,
-            counts_for_grade=False,
+            QuestionAssignment, questionnaire=top_general_questionnaire, order=1, question__type=QuestionType.TEXT
         )
         baker.make(
             QuestionAssignment,
@@ -88,18 +72,10 @@ class StudentVoteLiveTest(LiveServerTest):
         )
 
         baker.make(
-            QuestionAssignment,
-            questionnaire=bottom_general_questionnaire,
-            order=0,
-            question__type=QuestionType.HEADING,
-            counts_for_grade=False,
+            QuestionAssignment, questionnaire=bottom_general_questionnaire, order=0, question__type=QuestionType.HEADING
         )
         baker.make(
-            QuestionAssignment,
-            questionnaire=bottom_general_questionnaire,
-            order=1,
-            question__type=QuestionType.TEXT,
-            counts_for_grade=False,
+            QuestionAssignment, questionnaire=bottom_general_questionnaire, order=1, question__type=QuestionType.TEXT
         )
         baker.make(
             QuestionAssignment,
